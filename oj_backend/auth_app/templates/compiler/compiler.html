@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Online Compiler - FullMoon</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .nav-btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .auth-btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .login-btn {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .login-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .signup-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .signup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            margin-left: auto;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .user-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .user-avatar {
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+        
+        .user-avatar:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 0.5rem 0;
+            min-width: 180px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+        }
+        
+        .profile-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            color: #333;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #667eea;
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background-color: #e9ecef;
+            margin: 0.5rem 0;
+        }
+        
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .compiler-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+        
+        .compiler-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .compiler-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .compiler-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .code-section, .output-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .language-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .lang-btn {
+            padding: 0.5rem 1.5rem;
+            border: 2px solid #667eea;
+            background: transparent;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .lang-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .lang-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .code-editor {
+            width: 100%;
+            height: 400px;
+            background: #1e1e1e;
+            color: #fff;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            border: none;
+            border-radius: 10px;
+            padding: 1rem;
+            resize: vertical;
+            line-height: 1.5;
+        }
+        
+        .code-editor:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+        }
+        
+        .input-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .input-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .input-field {
+            width: 100%;
+            height: 100px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 1rem;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+        
+        .run-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+        
+        .run-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+        
+        .run-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .output-display {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 1rem;
+            min-height: 200px;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            overflow-y: auto;
+        }
+        
+        .output-success {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .output-error {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .execution-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #e9ecef;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            color: #667eea;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .recent-submissions {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .submission-item {
+            padding: 1rem;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .submission-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.1);
+        }
+        
+        .submission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .submission-language {
+            padding: 0.2rem 0.8rem;
+            background: #667eea;
+            color: white;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .submission-time {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .submission-status {
+            padding: 0.2rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        @media (max-width: 768px) {
+            .compiler-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .language-selector {
+                flex-wrap: wrap;
+            }
+            
+            .code-editor {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">FullMoon</div>
+            <div class="nav-buttons">
+                <a href="{% url 'problems' %}" class="nav-btn">Problems</a>
+                <a href="{% url 'contests' %}" class="nav-btn">Contests</a>
+                <a href="{% url 'submissions' %}" class="nav-btn">Submissions</a>
+                <a href="{% url 'leaderboard' %}" class="nav-btn">Leaderboard</a>
+                <a href="{% url 'compiler' %}" class="nav-btn">Compiler</a>
+            </div>
+            <div class="auth-buttons">
+                {% if user.is_authenticated %}
+                    <div class="user-profile">
+                        <div class="user-info" onclick="toggleDropdown()">
+                            <span class="user-avatar">{{ user.username|slice:":1" }}</span>
+                        </div>
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <div class="dropdown-item">
+                                <strong>{{ user.username }}</strong>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'login' %}" class="auth-btn login-btn">Login</a>
+                    <a href="{% url 'register' %}" class="auth-btn signup-btn">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="compiler-header">
+            <h1>Online Compiler</h1>
+            <p>Write, compile, and run code in Python, C++, and Java</p>
+        </div>
+
+        <div class="compiler-grid">
+            <div class="code-section">
+                <h2 class="section-title">Write Your Code</h2>
+                
+                <div class="language-selector">
+                    <button class="lang-btn active" data-lang="python">Python</button>
+                    <button class="lang-btn" data-lang="cpp">C++</button>
+                    <button class="lang-btn" data-lang="java">Java</button>
+                </div>
+                
+                <textarea id="code-editor" class="code-editor" placeholder="# Write your code here...
+# For Python: print('Hello World')
+# For C++: #include &lt;iostream&gt;
+# For Java: public class Main {"></textarea>
+                
+                <div class="input-section">
+                    <label class="input-label">Input (Optional):</label>
+                    <textarea id="input-data" class="input-field" placeholder="Enter your input here..."></textarea>
+                </div>
+                
+                <button id="run-btn" class="run-btn">▶ Run Code</button>
+                
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Compiling and running your code...</p>
+                </div>
+            </div>
+            
+            <div class="output-section">
+                <h2 class="section-title">Output</h2>
+                <div id="output-display" class="output-display">Output will appear here...</div>
+                <div id="execution-info" class="execution-info" style="display: none;">
+                    <span>Execution Time: <span id="exec-time">0</span>ms</span>
+                    <span>Status: <span id="exec-status">-</span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="recent-submissions">
+            <h2 class="section-title">Recent Submissions</h2>
+            {% if recent_submissions %}
+                {% for submission in recent_submissions %}
+                <div class="submission-item">
+                    <div class="submission-header">
+                        <span class="submission-language">{{ submission.language|upper }}</span>
+                        <span class="submission-time">{{ submission.created_at|timesince }} ago</span>
+                    </div>
+                    <div class="submission-status {% if submission.status == 'success' %}status-success{% else %}status-error{% endif %}">
+                        {{ submission.status|title }}
+                    </div>
+                    {% if submission.execution_time %}
+                        <small>Execution time: {{ submission.execution_time }}ms</small>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align: center; color: #666;">No recent submissions</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Language selection
+        const langBtns = document.querySelectorAll('.lang-btn');
+        const codeEditor = document.getElementById('code-editor');
+        const runBtn = document.getElementById('run-btn');
+        const loading = document.getElementById('loading');
+        const outputDisplay = document.getElementById('output-display');
+        const executionInfo = document.getElementById('execution-info');
+        const execTime = document.getElementById('exec-time');
+        const execStatus = document.getElementById('exec-status');
+        
+        let currentLanguage = 'python';
+        
+        // Sample code templates
+        const codeTemplates = {
+            python: `# Python code
+print("Hello, World!")
+
+# Get input
+name = input("Enter your name: ")
+print(f"Hello, {name}!")`,
+            
+            cpp: `#include <iostream>
+#include <string>
+using namespace std;
+
+int main() {
+    cout << "Hello, World!" << endl;
+    
+    string name;
+    cout << "Enter your name: ";
+    getline(cin, name);
+    cout << "Hello, " << name << "!" << endl;
+    
+    return 0;
+}`,
+            
+            java: `import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+        
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter your name: ");
+        String name = scanner.nextLine();
+        System.out.println("Hello, " + name + "!");
+        
+        scanner.close();
+    }
+}`
+        };
+        
+        // Language button click handlers
+        langBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons
+                langBtns.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                btn.classList.add('active');
+                
+                // Update current language
+                currentLanguage = btn.dataset.lang;
+                
+                // Update code editor with template
+                codeEditor.value = codeTemplates[currentLanguage];
+            });
+        });
+        
+        // Run code function
+        async function runCode() {
+            const code = codeEditor.value.trim();
+            const inputData = document.getElementById('input-data').value;
+            
+            if (!code) {
+                outputDisplay.textContent = 'Please write some code first!';
+                outputDisplay.className = 'output-display output-error';
+                return;
+            }
+            
+            // Show loading
+            runBtn.disabled = true;
+            loading.style.display = 'block';
+            outputDisplay.textContent = 'Running your code...';
+            outputDisplay.className = 'output-display';
+            
+            try {
+                const response = await fetch('{% url "run_code" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        language: currentLanguage,
+                        code: code,
+                        input_data: inputData
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (result.output) {
+                        outputDisplay.textContent = result.output;
+                        outputDisplay.className = 'output-display output-success';
+                    } else {
+                        outputDisplay.textContent = 'Code executed successfully (no output)';
+                        outputDisplay.className = 'output-display output-success';
+                    }
+                    
+                    // Show execution info
+                    execTime.textContent = result.execution_time;
+                    execStatus.textContent = result.status;
+                    executionInfo.style.display = 'flex';
+                } else {
+                    outputDisplay.textContent = result.error || 'An error occurred';
+                    outputDisplay.className = 'output-display output-error';
+                    executionInfo.style.display = 'none';
+                }
+                
+            } catch (error) {
+                outputDisplay.textContent = 'Network error: ' + error.message;
+                outputDisplay.className = 'output-display output-error';
+                executionInfo.style.display = 'none';
+            } finally {
+                // Hide loading
+                runBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+        
+        // Run button click handler
+        runBtn.addEventListener('click', runCode);
+        
+        // Keyboard shortcut (Ctrl+Enter to run)
+        codeEditor.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                runCode();
+            }
+        });
+        
+        // Get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Profile dropdown functionality
+        function toggleDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        document.addEventListener('click', function(event) {
+            const userProfile = document.querySelector('.user-profile');
+            const dropdown = document.getElementById('profileDropdown');
+            if (userProfile && !userProfile.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+        
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const dropdown = document.getElementById('profileDropdown');
+                dropdown.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html> 

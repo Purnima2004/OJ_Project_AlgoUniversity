@@ -1,39 +1,38 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate, logout
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 from django.db import IntegrityError
-from .models import Problem, Contest, UserProfile, Submission, ConceptOfDay
-
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from .models import Problem, Contest, UserProfile, Submission, ConceptOfDay, CodeSubmission
+from .forms import CodeSubmissionForm
+from .compiler import CodeCompiler
+import json
 
 def register_view(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-        
         try:
             user = User.objects.create_user(username=username, password=password)
             login(request, user)
             return redirect('home')
         except IntegrityError:
-            # Username already exists
             return render(request, 'register/register.html', {
                 'error': 'Username already exists. Please choose a different username.'
             })
-    
     return render(request, 'register/register.html')
 
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        
         if not username or not password:
             return render(request, 'login/login.html', {
                 'error': 'Please provide both username and password.'
             })
-        
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
@@ -49,37 +48,22 @@ def logout_view(request):
     return redirect('login')
 
 def home(request):
-    # Get active contests
-    contests = Contest.objects.filter(is_active=True, end_date__gte=timezone.now()).order_by('start_date')[:3]
+    contests = Contest.objects.all()[:3]
+    concept_of_day = ConceptOfDay.objects.first()
     
-    # Get today's concept
-    today = timezone.now().date()
-    concept_of_day = ConceptOfDay.objects.filter(date=today).first()
-    
-    # If no concept for today, get the latest one
-    if not concept_of_day:
-        concept_of_day = ConceptOfDay.objects.order_by('-date').first()
-    
-    # If still no concept, create a default one
     if not concept_of_day:
         concept_of_day = {
             'title': 'Dynamic Programming',
-            'description': 'Dynamic Programming is a method for solving complex problems by breaking them down into simpler subproblems. It is applicable when the subproblems are not independent, that is, when subproblems share subsubproblems.'
+            'description': 'Dynamic Programming is a method for solving complex problems by breaking them down into simpler subproblems. It is applicable when the subproblems are not independent, that is, when subproblems share subsubproblems.',
+            'example_code': 'def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)'
         }
-    
-    # Get statistics
-    total_problems = Problem.objects.count()
-    total_contests = Contest.objects.filter(is_active=True).count()
-    total_users = User.objects.count()
-    total_submissions = Submission.objects.count()
     
     context = {
         'contests': contests,
         'concept_of_day': concept_of_day,
-        'total_problems': total_problems,
-        'total_contests': total_contests,
-        'total_users': total_users,
-        'total_submissions': total_submissions,
+        'total_problems': Problem.objects.count(),
+        'total_users': User.objects.count(),
+        'total_submissions': Submission.objects.count(),
     }
     return render(request, 'home/home.html', context)
 
@@ -88,7 +72,7 @@ def problems_view(request):
     return render(request, 'problems/problems.html', {'problems': problems})
 
 def contests_view(request):
-    contests = Contest.objects.filter(is_active=True).order_by('start_date')
+    contests = Contest.objects.all()
     return render(request, 'contests/contests.html', {'contests': contests})
 
 def submissions_view(request):
@@ -99,139 +83,173 @@ def submissions_view(request):
     return render(request, 'submission/submissions.html', {'submissions': submissions})
 
 def leaderboard_view(request):
-    # Get users ordered by score
     user_profiles = UserProfile.objects.all().order_by('-score')
     return render(request, 'leaderboard/leaderboard.html', {'user_profiles': user_profiles})
 
 def problem_detail(request, problem_id):
-    problems = [
-        {
-            'id': 1,
-            'title': 'Two Sum',
-            'description': 'Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.',
-            'difficulty': 'Easy',
-            'examples': [
-                {'input': 'nums = [2,7,11,15], target = 9', 'output': '[0,1]', 'explanation': 'nums[0] + nums[1] == 9'},
-                {'input': 'nums = [3,2,4], target = 6', 'output': '[1,2]', 'explanation': 'nums[1] + nums[2] == 6'},
-                {'input': 'nums = [3,3], target = 6', 'output': '[0,1]', 'explanation': 'nums[0] + nums[1] == 6'},
-            ],
-            'constraints': [
-                '2 <= nums.length <= 10^4',
-                '-10^9 <= nums[i] <= 10^9',
-                '-10^9 <= target <= 10^9',
-                'Only one valid answer exists.'
-            ],
-            'test_cases': [
-                {'input': 'nums = [2,7,11,15]\ntarget = 9', 'expected_output': '[0,1]'},
-                {'input': 'nums = [3,2,4]\ntarget = 6', 'expected_output': '[1,2]'},
-            ]
-        },
-        {
-            'id': 2,
-            'title': 'Reverse Linked List',
-            'description': 'Reverse a singly linked list.',
-            'difficulty': 'Easy',
-            'examples': [
-                {'input': 'head = [1,2,3,4,5]', 'output': '[5,4,3,2,1]', 'explanation': 'Reverse the list.'},
-                {'input': 'head = [1,2]', 'output': '[2,1]', 'explanation': 'Reverse the list.'},
-                {'input': 'head = []', 'output': '[]', 'explanation': 'Empty list remains empty.'},
-            ],
-            'constraints': [
-                'The number of nodes in the list is the range [0, 5000].',
-                '-5000 <= Node.val <= 5000'
-            ],
-            'test_cases': [
-                {'input': 'head = [1,2,3,4,5]', 'expected_output': '[5,4,3,2,1]'},
-                {'input': 'head = [1,2]', 'expected_output': '[2,1]'},
-            ]
-        },
-        {
-            'id': 3,
-            'title': 'Longest Substring Without Repeating Characters',
-            'description': 'Given a string s, find the length of the longest substring without repeating characters.',
-            'difficulty': 'Medium',
-            'examples': [
-                {'input': 's = "abcabcbb"', 'output': '3', 'explanation': 'The answer is "abc", with the length of 3.'},
-                {'input': 's = "bbbbb"', 'output': '1', 'explanation': 'The answer is "b", with the length of 1.'},
-                {'input': 's = "pwwkew"', 'output': '3', 'explanation': 'The answer is "wke", with the length of 3.'},
-            ],
-            'constraints': [
-                '0 <= s.length <= 5 * 10^4',
-                's consists of English letters, digits, symbols and spaces.'
-            ],
-            'test_cases': [
-                {'input': 's = "abcabcbb"', 'expected_output': '3'},
-                {'input': 's = "bbbbb"', 'expected_output': '1'},
-            ]
-        },
-        {
-            'id': 4,
-            'title': 'Add Two Numbers',
-            'description': 'You are given two non-empty linked lists representing two non-negative integers. Add the two numbers and return the sum as a linked list.',
-            'difficulty': 'Medium',
-            'examples': [
-                {'input': 'l1 = [2,4,3], l2 = [5,6,4]', 'output': '[7,0,8]', 'explanation': '342 + 465 = 807.'},
-                {'input': 'l1 = [0], l2 = [0]', 'output': '[0]', 'explanation': '0 + 0 = 0.'},
-                {'input': 'l1 = [9,9,9,9,9,9,9], l2 = [9,9,9,9]', 'output': '[8,9,9,9,0,0,0,1]', 'explanation': '9999999 + 9999 = 10009998.'},
-            ],
-            'constraints': [
-                'The number of nodes in each linked list is in the range [1, 100].',
-                '0 <= Node.val <= 9',
-                'It is guaranteed that the list represents a number that does not have leading zeros.'
-            ],
-            'test_cases': [
-                {'input': 'l1 = [2,4,3], l2 = [5,6,4]', 'expected_output': '[7,0,8]'},
-                {'input': 'l1 = [0], l2 = [0]', 'expected_output': '[0]'},
-            ]
-        },
-        {
-            'id': 5,
-            'title': 'Median of Two Sorted Arrays',
-            'description': 'Given two sorted arrays nums1 and nums2 of size m and n respectively, return the median of the two sorted arrays.',
-            'difficulty': 'Hard',
-            'examples': [
-                {'input': 'nums1 = [1,3], nums2 = [2]', 'output': '2.0', 'explanation': 'The median is 2.0.'},
-                {'input': 'nums1 = [1,2], nums2 = [3,4]', 'output': '2.5', 'explanation': 'The median is (2 + 3)/2 = 2.5.'},
-                {'input': 'nums1 = [0,0], nums2 = [0,0]', 'output': '0.0', 'explanation': 'The median is 0.0.'},
-            ],
-            'constraints': [
-                'nums1.length == m',
-                'nums2.length == n',
-                '0 <= m <= 1000',
-                '0 <= n <= 1000',
-                '1 <= m + n <= 2000',
-                '-10^6 <= nums1[i], nums2[i] <= 10^6'
-            ],
-            'test_cases': [
-                {'input': 'nums1 = [1,3], nums2 = [2]', 'expected_output': '2.0'},
-                {'input': 'nums1 = [1,2], nums2 = [3,4]', 'expected_output': '2.5'},
-            ]
-        },
-        {
-            'id': 6,
-            'title': 'Regular Expression Matching',
-            'description': 'Given an input string s and a pattern p, implement regular expression matching with support for . and *.',
-            'difficulty': 'Hard',
-            'examples': [
-                {'input': 's = "aa", p = "a"', 'output': 'false', 'explanation': '"a" does not match the entire string "aa".'},
-                {'input': 's = "aa", p = "a*"', 'output': 'true', 'explanation': '"*" means zero or more of the preceding element, so "aa" is matched as "a*".'},
-                {'input': 's = "ab", p = ".*"', 'output': 'true', 'explanation': '".*" means zero or more of any character.'},
-            ],
-            'constraints': [
-                '1 <= s.length <= 20',
-                '1 <= p.length <= 30',
-                's contains only lowercase English letters.',
-                'p contains only lowercase English letters, ".", and "*".'
-            ],
-            'test_cases': [
-                {'input': 's = "aa", p = "a"', 'expected_output': 'false'},
-                {'input': 's = "aa", p = "a*"', 'expected_output': 'true'},
-            ]
-        },
-    ]
-    problem = next((p for p in problems if p['id'] == problem_id), None)
-    if not problem:
-        from django.http import Http404
-        raise Http404("No Problem matches the given query.")
+    problem = get_object_or_404(Problem, id=problem_id)
+    
+    # Hardcoded problems for demo
+    if problem_id == 1:
+        problem.examples = [
+            {'input': '5', 'output': '120', 'explanation': '5! = 5 × 4 × 3 × 2 × 1 = 120'},
+            {'input': '0', 'output': '1', 'explanation': '0! = 1 by definition'},
+            {'input': '3', 'output': '6', 'explanation': '3! = 3 × 2 × 1 = 6'}
+        ]
+        problem.constraints = ['0 ≤ n ≤ 12', 'The result fits in a 32-bit integer']
+        problem.test_cases = [
+            {'input': '5', 'expected_output': '120'},
+            {'input': '0', 'expected_output': '1'},
+            {'input': '3', 'expected_output': '6'},
+            {'input': '10', 'expected_output': '3628800'}
+        ]
+    elif problem_id == 2:
+        problem.examples = [
+            {'input': '[1,2,3,4,5]', 'output': '15', 'explanation': 'Sum of all elements: 1+2+3+4+5 = 15'},
+            {'input': '[10,20,30]', 'output': '60', 'explanation': 'Sum of all elements: 10+20+30 = 60'},
+            {'input': '[]', 'output': '0', 'explanation': 'Empty array has sum 0'}
+        ]
+        problem.constraints = ['1 ≤ arr.length ≤ 1000', '-1000 ≤ arr[i] ≤ 1000']
+        problem.test_cases = [
+            {'input': '[1,2,3,4,5]', 'expected_output': '15'},
+            {'input': '[10,20,30]', 'expected_output': '60'},
+            {'input': '[]', 'expected_output': '0'},
+            {'input': '[-1,-2,3]', 'expected_output': '0'}
+        ]
+    elif problem_id == 3:
+        problem.examples = [
+            {'input': '"hello"', 'output': 'olleh', 'explanation': 'Reverse of "hello" is "olleh"'},
+            {'input': '"world"', 'output': 'dlrow', 'explanation': 'Reverse of "world" is "dlrow"'},
+            {'input': '""', 'output': '""', 'explanation': 'Empty string reversed is empty string'}
+        ]
+        problem.constraints = ['1 ≤ s.length ≤ 100', 's consists of printable ASCII characters']
+        problem.test_cases = [
+            {'input': '"hello"', 'expected_output': 'olleh'},
+            {'input': '"world"', 'expected_output': 'dlrow'},
+            {'input': '""', 'expected_output': '""'},
+            {'input': '"a"', 'expected_output': 'a'}
+        ]
+    elif problem_id == 4:
+        problem.examples = [
+            {'input': 'n=5', 'output': 'true', 'explanation': '5 is prime (divisible only by 1 and 5)'},
+            {'input': 'n=4', 'output': 'false', 'explanation': '4 is not prime (divisible by 1, 2, 4)'},
+            {'input': 'n=1', 'output': 'false', 'explanation': '1 is not considered prime'}
+        ]
+        problem.constraints = ['1 ≤ n ≤ 1000']
+        problem.test_cases = [
+            {'input': '5', 'expected_output': 'true'},
+            {'input': '4', 'expected_output': 'false'},
+            {'input': '1', 'expected_output': 'false'},
+            {'input': '17', 'expected_output': 'true'}
+        ]
+    elif problem_id == 5:
+        problem.examples = [
+            {'input': '[1,2,3,1]', 'output': 'true', 'explanation': '1 appears twice in the array'},
+            {'input': '[1,2,3,4]', 'output': 'false', 'explanation': 'No duplicates in the array'},
+            {'input': '[1,1,1,3,3,4,3,2,4,2]', 'output': 'true', 'explanation': 'Multiple duplicates exist'}
+        ]
+        problem.constraints = ['1 ≤ nums.length ≤ 105', '-109 ≤ nums[i] ≤ 109']
+        problem.test_cases = [
+            {'input': '[1,2,3,1]', 'expected_output': 'true'},
+            {'input': '[1,2,3,4]', 'expected_output': 'false'},
+            {'input': '[1,1,1,3,3,4,3,2,4,2]', 'expected_output': 'true'},
+            {'input': '[1]', 'expected_output': 'false'}
+        ]
+    elif problem_id == 6:
+        problem.examples = [
+            {'input': 'n=4', 'output': '2', 'explanation': 'There are 2 ways: (1,1,1,1) and (1,1,2)'},
+            {'input': 'n=3', 'output': '3', 'explanation': 'There are 3 ways: (1,1,1), (1,2), (2,1)'},
+            {'input': 'n=2', 'output': '2', 'explanation': 'There are 2 ways: (1,1), (2)'}
+        ]
+        problem.constraints = ['1 ≤ n ≤ 45']
+        problem.test_cases = [
+            {'input': '4', 'expected_output': '2'},
+            {'input': '3', 'expected_output': '3'},
+            {'input': '2', 'expected_output': '2'},
+            {'input': '5', 'expected_output': '8'}
+        ]
+    
     return render(request, 'problems/problem_detail.html', {'problem': problem})
+
+# Online Compiler Views
+def compiler_view(request):
+    """Main compiler page view"""
+    form = CodeSubmissionForm()
+    recent_submissions = CodeSubmission.objects.all().order_by('-created_at')[:5]
+    
+    context = {
+        'form': form,
+        'recent_submissions': recent_submissions
+    }
+    return render(request, 'compiler/compiler.html', context)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def run_code(request):
+    """API endpoint to run code"""
+    try:
+        data = json.loads(request.body)
+        language = data.get('language', 'python')
+        code = data.get('code', '')
+        input_data = data.get('input_data', '')
+        
+        if not code.strip():
+            return JsonResponse({
+                'success': False,
+                'error': 'Code cannot be empty'
+            })
+        
+        # Initialize compiler
+        compiler = CodeCompiler()
+        
+        # Compile and run the code
+        result = compiler.compile_and_run(code, language, input_data)
+        
+        # Save submission to database
+        submission = CodeSubmission.objects.create(
+            user=request.user if request.user.is_authenticated else None,
+            language=language,
+            code=code,
+            input_data=input_data,
+            output=result.get('output', ''),
+            error_message=result.get('error', ''),
+            execution_time=result.get('execution_time', 0),
+            status=result.get('status', 'error')
+        )
+        
+        # Clean up
+        compiler.cleanup()
+        
+        return JsonResponse({
+            'success': True,
+            'submission_id': submission.unique_id,
+            'output': result.get('output', ''),
+            'error': result.get('error', ''),
+            'execution_time': result.get('execution_time', 0),
+            'status': result.get('status', 'error')
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid JSON data'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        })
+
+def submission_detail(request, submission_id):
+    """View to show details of a specific submission"""
+    submission = get_object_or_404(CodeSubmission, unique_id=submission_id)
+    return render(request, 'compiler/submission_detail.html', {'submission': submission})
+
+def my_submissions(request):
+    """View to show user's own submissions"""
+    if not request.user.is_authenticated:
+        return redirect('login')
+    
+    submissions = CodeSubmission.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'compiler/my_submissions.html', {'submissions': submissions})
 

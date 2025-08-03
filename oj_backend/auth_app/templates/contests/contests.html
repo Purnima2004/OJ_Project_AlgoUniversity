@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Contests - CodeMaster</title>
+    <title>Contests - FullMoon</title>
     <style>
         * {
             margin: 0;
@@ -310,12 +310,13 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <div class="logo">CodeMaster</div>
+            <div class="logo">FullMoon</div>
             <div class="nav-buttons">
                 <a href="{% url 'problems' %}" class="nav-btn">Problems</a>
                 <a href="{% url 'contests' %}" class="nav-btn">Contests</a>
                 <a href="{% url 'submissions' %}" class="nav-btn">Submissions</a>
                 <a href="{% url 'leaderboard' %}" class="nav-btn">Leaderboard</a>
+                <a href="{% url 'compiler' %}" class="nav-btn">Compiler</a>
             </div>
             <div class="auth-buttons">
                 {% if user.is_authenticated %}
