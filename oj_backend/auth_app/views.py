@@ -3,30 +3,46 @@ from django.contrib.auth import login, authenticate, logout
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.utils import timezone
+from django.db import IntegrityError
 from .models import Problem, Contest, UserProfile, Submission, ConceptOfDay
-
 
 
 def register_view(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-        user = User.objects.create_user(username=username, password=password)
-        login(request, user)
-        return redirect('home')
-    return render(request, 'auth_app/register.html')
+        
+        try:
+            user = User.objects.create_user(username=username, password=password)
+            login(request, user)
+            return redirect('home')
+        except IntegrityError:
+            # Username already exists
+            return render(request, 'register/register.html', {
+                'error': 'Username already exists. Please choose a different username.'
+            })
+    
+    return render(request, 'register/register.html')
 
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        if not username or not password:
+            return render(request, 'login/login.html', {
+                'error': 'Please provide both username and password.'
+            })
+        
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
             return redirect('home')
         else:
-            return HttpResponse('Invalid credentials')
-    return render(request, 'auth_app/login.html')
+            return render(request, 'login/login.html', {
+                'error': 'Invalid username or password. Please try again.'
+            })
+    return render(request, 'login/login.html')
 
 def logout_view(request):
     logout(request)
@@ -65,27 +81,27 @@ def home(request):
         'total_users': total_users,
         'total_submissions': total_submissions,
     }
-    return render(request, 'auth_app/home.html', context)
+    return render(request, 'home/home.html', context)
 
 def problems_view(request):
     problems = Problem.objects.all()
-    return render(request, 'auth_app/problems.html', {'problems': problems})
+    return render(request, 'problems/problems.html', {'problems': problems})
 
 def contests_view(request):
     contests = Contest.objects.filter(is_active=True).order_by('start_date')
-    return render(request, 'auth_app/contests.html', {'contests': contests})
+    return render(request, 'contests/contests.html', {'contests': contests})
 
 def submissions_view(request):
     if request.user.is_authenticated:
         submissions = Submission.objects.filter(user=request.user).order_by('-submitted_at')
     else:
         submissions = []
-    return render(request, 'auth_app/submissions.html', {'submissions': submissions})
+    return render(request, 'submission/submissions.html', {'submissions': submissions})
 
 def leaderboard_view(request):
     # Get users ordered by score
     user_profiles = UserProfile.objects.all().order_by('-score')
-    return render(request, 'auth_app/leaderboard.html', {'user_profiles': user_profiles})
+    return render(request, 'leaderboard/leaderboard.html', {'user_profiles': user_profiles})
 
 def problem_detail(request, problem_id):
     problems = [
@@ -217,5 +233,5 @@ def problem_detail(request, problem_id):
     if not problem:
         from django.http import Http404
         raise Http404("No Problem matches the given query.")
-    return render(request, 'auth_app/problem_detail.html', {'problem': problem})
+    return render(request, 'problems/problem_detail.html', {'problem': problem})
 
