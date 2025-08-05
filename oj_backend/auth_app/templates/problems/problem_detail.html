@@ -224,6 +224,7 @@
         .run-btn:hover { background: #0056b3; }
         .submit-btn { background: #28a745; color: #fff; }
         .submit-btn:hover { background: #1e7e34; }
+        .submit-btn:disabled { background: #6c757d; cursor: not-allowed; }
         .toggle-icon-btn {
   background: none;
   border: none;
@@ -298,6 +299,253 @@
         .dark-mode h3 { color: #eee; }
         ul { padding-left: 1.5rem; }
         .dark-mode .lang-select { background: #222; color: #eee; border-color: #444; }
+        .constraints-text {
+            white-space: pre-line;
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .dark-mode .constraints-text { background: #222; color: #eee; }
+        
+        /* Submission Results Styles */
+        .submission-results {
+            margin-top: 1rem;
+            background: white;
+            border-radius: 6px;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .dark-mode .submission-results { background: #222; color: #eee; }
+        .result-status {
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        .status-AC { background: #d4edda; color: #155724; }
+        .status-WA { background: #f8d7da; color: #721c24; }
+        .status-TLE { background: #fff3cd; color: #856404; }
+        .status-RE { background: #f8d7da; color: #721c24; }
+        .status-CE { background: #f8d7da; color: #721c24; }
+        .status-MLE { background: #fff3cd; color: #856404; }
+        .status-PE { background: #fff3cd; color: #856404; }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .test-case-result {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 0.5rem 0;
+            overflow: hidden;
+        }
+        .test-case-header {
+            background: #f8f9fa;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dark-mode .test-case-header { background: #333; }
+        .test-case-content {
+            padding: 1rem;
+        }
+        .test-case-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+        }
+        .dark-mode .error-message { background: #552222; color: #f8d7da; }
+        
+        /* Test Case Tabs Styles */
+        .test-case-tabs {
+            margin-top: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .dark-mode .test-case-tabs { border-color: #444; }
+        
+        .tabs-header {
+            background: #f8f9fa;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .dark-mode .tabs-header { background: #333; border-color: #444; }
+        
+        .tab-label {
+            font-weight: 500;
+            color: #333;
+        }
+        .dark-mode .tab-label { color: #eee; }
+        
+        .tab-label.inactive {
+            color: #666;
+        }
+        .dark-mode .tab-label.inactive { color: #888; }
+        
+        .tab-separator {
+            color: #666;
+            font-weight: bold;
+        }
+        .dark-mode .tab-separator { color: #888; }
+        
+        .tabs-container {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #ddd;
+        }
+        .dark-mode .tabs-container { background: #222; border-color: #444; }
+        
+        .test-case-tab {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .dark-mode .test-case-tab { color: #888; }
+        
+        .test-case-tab.active {
+            color: #333;
+            border-bottom-color: #667eea;
+            background: #f8f9fa;
+        }
+        .dark-mode .test-case-tab.active { 
+            color: #eee; 
+            background: #333; 
+            border-bottom-color: #667eea; 
+        }
+        
+        .test-case-tab.passed {
+            color: #28a745;
+        }
+        .dark-mode .test-case-tab.passed { color: #28a745; }
+        
+        .test-case-tab.failed {
+            color: #dc3545;
+        }
+        .dark-mode .test-case-tab.failed { color: #dc3545; }
+        
+        .test-case-content {
+            padding: 1.5rem;
+            background: white;
+        }
+        .dark-mode .test-case-content { background: #222; }
+        
+        .input-param {
+            margin-bottom: 1.5rem;
+        }
+        
+        .input-label {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .dark-mode .input-label { color: #eee; }
+        
+        .input-value {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 0.75rem;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .dark-mode .input-value { 
+            background: #333; 
+            border-color: #444; 
+            color: #eee; 
+        }
+        
+        .output-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #ddd;
+        }
+        .dark-mode .output-section { border-color: #444; }
+        
+        .output-label {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        .dark-mode .output-label { color: #eee; }
+        
+        .expected-output {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            padding: 0.75rem;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: #155724;
+        }
+        .dark-mode .expected-output { 
+            background: #225522; 
+            border-color: #2d5a2d; 
+            color: #d4edda; 
+        }
+        
+        .actual-output {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            padding: 0.75rem;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: #721c24;
+        }
+        .dark-mode .actual-output { 
+            background: #552222; 
+            border-color: #5a2d2d; 
+            color: #f8d7da; 
+        }
+        
+        .actual-output.correct {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .dark-mode .actual-output.correct { 
+            background: #225522; 
+            border-color: #2d5a2d; 
+            color: #d4edda; 
+        }
     </style>
 </head>
 <body>
@@ -360,45 +608,98 @@
                 <h3>Description</h3>
                 <p>{{ problem.description }}</p>
             </div>
+            {% if problem.examples %}
             <div class="examples">
                 <h3>Examples</h3>
-                {% for ex in problem.examples %}
-                    <div class="example-block">
-                        <b>Input:</b> {{ ex.input }}<br>
-                        <b>Output:</b> {{ ex.output }}<br>
-                        <b>Explanation:</b> {{ ex.explanation }}
-                    </div>
-                {% endfor %}
+                <div class="example-block">
+                    {{ problem.examples|linebreaks }}
+                </div>
             </div>
+            {% endif %}
+            {% if problem.constraints %}
             <div class="constraints">
                 <h3>Constraints</h3>
-                <ul>
-                {% for c in problem.constraints %}
-                    <li>{{ c }}</li>
-                {% endfor %}
-                </ul>
+                <div class="constraints-text">
+                    {{ problem.constraints|linebreaks }}
+                </div>
             </div>
+            {% endif %}
         </div>
         <div class="right-panel">
             <div class="top-bar">
-                <select class="lang-select">
-                    <option>C++</option>
-                    <option>Java</option>
-                    <option>Python</option>
+                <select class="lang-select" id="language-select">
+                    <option value="python">Python</option>
+                    <option value="cpp">C++</option>
+                    <option value="java">Java</option>
                 </select>
                 <div>
-                    <button class="run-btn">Run</button>
-                    <button class="submit-btn">Submit</button>
+                    <button class="run-btn" onclick="runTestCases()">Run</button>
+                    <button class="submit-btn" id="submit-btn" onclick="submitSolution()">Submit</button>
                 </div>
             </div>
-            <textarea class="code-editor" placeholder="# Write your code here..."></textarea>
-            <div class="test-cases">
-                <h3>Test Cases</h3>
-                {% for tc in problem.test_cases %}
-                    <div class="example-block">
-                        <b>Input:</b> {{ tc.input }}<br>
-                        <b>Expected Output:</b> {{ tc.expected_output }}
+            <textarea class="code-editor" id="code-editor" placeholder="# Write your code here...">{% if problem.title == "Two Sum" %}# Two Sum Solution
+# Read input
+n = int(input())
+nums = list(map(int, input().split()))
+target = int(input())
+
+# Find two numbers that add up to target
+def twoSum(nums, target):
+    seen = {}
+    for i, num in enumerate(nums):
+        complement = target - num
+        if complement in seen:
+            return [seen[complement], i]
+        seen[num] = i
+    return []
+
+# Get result
+result = twoSum(nums, target)
+print(result[0], result[1]){% endif %}</textarea>
+            
+            <!-- Submission Results Section -->
+            <div id="submission-results" class="submission-results" style="display: none;">
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Running test cases...</p>
+                </div>
+                <div id="results-content" style="display: none;">
+                    <div id="result-status" class="result-status"></div>
+                    <div id="result-details"></div>
+                    
+                    <!-- Test Case Tabs -->
+                    <div id="test-case-tabs" class="test-case-tabs" style="display: none;">
+                        <div class="tabs-header">
+                            <span class="tab-label">Testcase</span>
+                            <span class="tab-separator">></span>
+                            <span class="tab-label inactive">Test Result</span>
+                        </div>
+                        <div class="tabs-container" id="tabs-container">
+                            <!-- Test case tabs will be generated here -->
+                        </div>
                     </div>
+                    
+                    <!-- Test Case Content -->
+                    <div id="test-case-content" class="test-case-content" style="display: none;">
+                        <div id="test-case-inputs"></div>
+                        <div id="test-case-outputs"></div>
+                    </div>
+                    
+                    <div id="error-message" class="error-message" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <div class="test-cases">
+                <h3>Sample Test Cases</h3>
+                {% for tc in test_cases %}
+                    <div class="example-block">
+                        <b>Input:</b><br>
+                        <pre>{{ tc.input_data }}</pre>
+                        <b>Expected Output:</b><br>
+                        <pre>{{ tc.expected_output }}</pre>
+                    </div>
+                {% empty %}
+                    <p>No sample test cases available.</p>
                 {% endfor %}
             </div>
         </div>
@@ -432,6 +733,327 @@
                 dropdown.classList.remove('show');
             }
         });
+
+        function runTestCases() {
+            const code = document.getElementById('code-editor').value;
+            const language = document.getElementById('language-select').value;
+            
+            if (!code.trim()) {
+                alert('Please write some code first!');
+                return;
+            }
+            
+            // Show loading spinner
+            const resultsSection = document.getElementById('submission-results');
+            const loading = document.getElementById('loading');
+            const resultsContent = document.getElementById('results-content');
+            const testCaseTabs = document.getElementById('test-case-tabs');
+            const testCaseContent = document.getElementById('test-case-content');
+            resultsSection.style.display = 'block';
+            loading.style.display = 'block';
+            resultsContent.style.display = 'none';
+            testCaseTabs.style.display = 'none';
+            testCaseContent.style.display = 'none';
+            // Send AJAX request for run mode
+            fetch(`/auth/problem/{{ problem.id }}/submit/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    code: code,
+                    language: language,
+                    mode: 'run'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                resultsContent.style.display = 'block';
+                if (data.success) {
+                    window.currentTestCases = data.test_cases || [];
+                    displayResults(data);
+                } else {
+                    displayError(data.error);
+                }
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                resultsContent.style.display = 'block';
+                displayError('Network error: ' + error);
+            });
+        }
+        
+        function showTestCaseInterface() {
+            const resultsSection = document.getElementById('submission-results');
+            const testCaseTabs = document.getElementById('test-case-tabs');
+            const testCaseContent = document.getElementById('test-case-content');
+            
+            // Show test case interface
+            resultsSection.style.display = 'block';
+            testCaseTabs.style.display = 'block';
+            testCaseContent.style.display = 'block';
+            
+            // Hide loading and results content
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('results-content').style.display = 'none';
+            
+            // Generate test case tabs for sample test cases
+            const sampleTestCases = [
+                { input_data: '4\n2 7 11 15\n9', expected_output: '0 1' },
+                { input_data: '3\n3 2 4\n6', expected_output: '1 2' },
+                { input_data: '2\n3 3\n6', expected_output: '0 1' }
+            ];
+            
+            displayTestCases(sampleTestCases);
+        }
+
+        function submitSolution() {
+            const code = document.getElementById('code-editor').value;
+            const language = document.getElementById('language-select').value;
+            const submitBtn = document.getElementById('submit-btn');
+            
+            if (!code.trim()) {
+                alert('Please write some code first!');
+                return;
+            }
+            
+            // Disable submit button and show loading
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            
+            // Show submission results section with full LeetCode-style interface
+            const resultsSection = document.getElementById('submission-results');
+            const loading = document.getElementById('loading');
+            const resultsContent = document.getElementById('results-content');
+            const testCaseTabs = document.getElementById('test-case-tabs');
+            const testCaseContent = document.getElementById('test-case-content');
+            
+            resultsSection.style.display = 'block';
+            loading.style.display = 'block';
+            resultsContent.style.display = 'none';
+            testCaseTabs.style.display = 'none';
+            testCaseContent.style.display = 'none';
+            
+            // Submit the solution via AJAX
+            fetch(`/auth/problem/{{ problem.id }}/submit/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    code: code,
+                    language: language,
+                    mode: 'submit'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                resultsContent.style.display = 'block';
+                
+                if (data.success) {
+                    // Store test cases globally for tab switching
+                    window.currentTestCases = data.test_cases || [];
+                    displayResults(data);
+                } else {
+                    displayError(data.error);
+                }
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                resultsContent.style.display = 'block';
+                displayError('Network error: ' + error);
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit';
+            });
+        }
+
+        function displayResults(data) {
+            const resultStatus = document.getElementById('result-status');
+            const resultDetails = document.getElementById('result-details');
+            const testCaseTabs = document.getElementById('test-case-tabs');
+            const testCaseContent = document.getElementById('test-case-content');
+            const errorMessage = document.getElementById('error-message');
+            
+            // Clear previous results
+            errorMessage.style.display = 'none';
+            
+            // Set status
+            resultStatus.className = `result-status status-${data.status}`;
+            resultStatus.textContent = getStatusText(data.status);
+            
+            // Set details
+            resultDetails.innerHTML = `
+                <p><strong>Test Cases Passed:</strong> ${data.test_cases_passed}/${data.total_test_cases}</p>
+                <p><strong>Execution Time:</strong> ${data.execution_time}ms</p>
+            `;
+            
+            // Show error if any
+            if (data.error_message) {
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = data.error_message;
+            }
+            
+            // Show test case tabs and content with full LeetCode-style interface
+            if (data.test_cases && data.test_cases.length > 0) {
+                testCaseTabs.style.display = 'block';
+                testCaseContent.style.display = 'block';
+                displayTestCases(data.test_cases);
+            }
+        }
+        
+        function displayTestCases(testCases) {
+            const tabsContainer = document.getElementById('tabs-container');
+            const testCaseTabs = document.getElementById('test-case-tabs');
+            const testCaseContent = document.getElementById('test-case-content');
+            
+            // Generate tabs
+            let tabsHTML = '';
+            testCases.forEach((testCase, index) => {
+                // For run mode, no status class initially
+                const statusClass = testCase.status ? (testCase.status === 'AC' ? 'passed' : 'failed') : '';
+                const activeClass = index === 0 ? 'active' : '';
+                tabsHTML += `
+                    <button class="test-case-tab ${statusClass} ${activeClass}" 
+                            onclick="showTestCase(${index})">
+                        Case ${index + 1}
+                    </button>
+                `;
+            });
+            
+            tabsContainer.innerHTML = tabsHTML;
+            testCaseTabs.style.display = 'block';
+            testCaseContent.style.display = 'block';
+            
+            // Show first test case by default
+            if (testCases.length > 0) {
+                showTestCase(0);
+            }
+        }
+        
+        function showTestCase(index) {
+            // Update active tab
+            const tabs = document.querySelectorAll('.test-case-tab');
+            tabs.forEach((tab, i) => {
+                if (i === index) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            // Show test case content
+            const testCase = window.currentTestCases[index];
+            if (testCase) {
+                displayTestCaseContent(testCase);
+            }
+        }
+        
+        function displayTestCaseContent(testCase) {
+            const inputsDiv = document.getElementById('test-case-inputs');
+            const outputsDiv = document.getElementById('test-case-outputs');
+            
+            // Parse input data for Two Sum problem
+            let inputsHTML = '';
+            if (testCase.input_data) {
+                const lines = testCase.input_data.split('\n');
+                if (lines.length >= 3) {
+                    const n = lines[0];
+                    const nums = lines[1];
+                    const target = lines[2];
+                    
+                    inputsHTML = `
+                        <div class="input-param">
+                            <label class="input-label">nums =</label>
+                            <div class="input-value">[${nums.split(' ').join(', ')}]</div>
+                        </div>
+                        <div class="input-param">
+                            <label class="input-label">target =</label>
+                            <div class="input-value">${target}</div>
+                        </div>
+                    `;
+                } else {
+                    inputsHTML = `
+                        <div class="input-param">
+                            <label class="input-label">Input:</label>
+                            <div class="input-value">${testCase.input_data}</div>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Parse output - handle both run mode and submit mode
+            let outputsHTML = '';
+            if (testCase.actual_output !== undefined) {
+                // Submit mode - show actual vs expected
+                const isCorrect = testCase.status === 'AC';
+                const outputClass = isCorrect ? 'correct' : '';
+                
+                outputsHTML = `
+                    <div class="output-section">
+                        <div class="output-label">Expected Output:</div>
+                        <div class="expected-output">${testCase.expected_output}</div>
+                        <div class="output-label" style="margin-top: 1rem;">Your Output:</div>
+                        <div class="actual-output ${outputClass}">${testCase.actual_output || 'No output'}</div>
+                    </div>
+                `;
+            } else {
+                // Run mode - show only expected output
+                outputsHTML = `
+                    <div class="output-section">
+                        <div class="output-label">Expected Output:</div>
+                        <div class="expected-output">${testCase.expected_output}</div>
+                    </div>
+                `;
+            }
+            
+            inputsDiv.innerHTML = inputsHTML;
+            outputsDiv.innerHTML = outputsHTML;
+        }
+
+        function displayError(error) {
+            const resultStatus = document.getElementById('result-status');
+            const errorMessage = document.getElementById('error-message');
+            
+            resultStatus.className = 'result-status status-RE';
+            resultStatus.textContent = 'Runtime Error';
+            
+            errorMessage.style.display = 'block';
+            errorMessage.textContent = error;
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'AC': 'Accepted',
+                'WA': 'Wrong Answer',
+                'TLE': 'Time Limit Exceeded',
+                'RE': 'Runtime Error',
+                'CE': 'Compilation Error',
+                'MLE': 'Memory Limit Exceeded',
+                'PE': 'Presentation Error'
+            };
+            return statusMap[status] || status;
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
     </script>
 </body>
 </html> 

@@ -1,261 +1,238 @@
+import os
+import uuid
 import subprocess
 import tempfile
-import os
+import signal
+import logging
 import time
-import uuid
 from pathlib import Path
+from typing import Dict, Any
+
+# Import resource module only on Unix/Linux systems
+try:
+    import resource
+    RESOURCE_AVAILABLE = True
+except ImportError:
+    RESOURCE_AVAILABLE = False
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class CompilerError(Exception):
+    """Custom exception for compiler related errors"""
+    pass
 
 class CodeCompiler:
+    """Handles secure code execution with resource limits"""
+    
+    MEMORY_LIMIT = 512 * 1024 * 1024  # 512MB
+    TIME_LIMIT = 10  # seconds
+    MAX_OUTPUT_SIZE = 1024 * 1024  # 1MB
+    
+    COMPILE_OPTIONS = {
+        "cpp": ["g++", "-O2", "-std=c++17", "-Wall"],
+        "java": ["javac", "-Xlint"],
+        "python": ["python3", "-B"],  # -B prevents writing .pyc files
+    }
+    
     def __init__(self):
-        self.temp_dir = tempfile.mkdtemp()
+        self.temp_dir = tempfile.mkdtemp(prefix='code_exec_')
+        self._setup_directories()
         
-    def compile_and_run(self, code, language, input_data=""):
-        """
-        Compile and run code for the given language
-        Returns: dict with output, error, execution_time, status
-        """
-        try:
-            if language == 'python':
-                return self._run_python(code, input_data)
-            elif language == 'cpp':
-                return self._run_cpp(code, input_data)
-            elif language == 'java':
-                return self._run_java(code, input_data)
-            else:
-                return {
-                    'output': '',
-                    'error': f'Unsupported language: {language}',
-                    'execution_time': 0,
-                    'status': 'error'
-                }
-        except Exception as e:
-            return {
-                'output': '',
-                'error': f'Compilation error: {str(e)}',
-                'execution_time': 0,
-                'status': 'error'
-            }
+    def _setup_directories(self):
+        """Create necessary directories with proper permissions"""
+        directories = ["codes", "inputs", "outputs"]
+        for directory in directories:
+            dir_path = Path(self.temp_dir) / directory
+            dir_path.mkdir(parents=True, exist_ok=True)
+            # Set restrictive permissions
+            os.chmod(str(dir_path), 0o700)
     
-    def _run_python(self, code, input_data):
-        """Run Python code"""
+    def _secure_run(self, cmd: list, input_data: str = None, 
+                   timeout: int = TIME_LIMIT) -> Dict[str, Any]:
+        """Execute command with security constraints"""
         try:
-            # Create unique filename
-            filename = f"code_{uuid.uuid4().hex}.py"
-            filepath = os.path.join(self.temp_dir, filename)
-            
-            # Write code to file
-            with open(filepath, 'w', encoding='utf-8') as f:
-                f.write(code)
-            
-            # Prepare input
-            input_bytes = input_data.encode() if input_data else b''
-            
-            # Run the code
-            start_time = time.time()
+            # Set up resource limits
+            def limit_resources():
+                if RESOURCE_AVAILABLE:  # Only on Unix/Linux systems
+                    resource.setrlimit(resource.RLIMIT_AS, 
+                                     (self.MEMORY_LIMIT, self.MEMORY_LIMIT))
+                    resource.setrlimit(resource.RLIMIT_CPU, 
+                                     (timeout, timeout))
+
             result = subprocess.run(
-                ['python', filepath],
-                input=input_bytes,
+                cmd,
+                input=input_data,
                 capture_output=True,
                 text=True,
-                timeout=10,  # 10 second timeout
+                timeout=timeout,
+                preexec_fn=limit_resources if RESOURCE_AVAILABLE else None,
                 cwd=self.temp_dir
             )
-            execution_time = time.time() - start_time
             
-            # Clean up
-            os.remove(filepath)
-            
-            if result.returncode == 0:
-                return {
-                    'output': result.stdout,
-                    'error': result.stderr,
-                    'execution_time': round(execution_time, 3),
-                    'status': 'success'
-                }
-            else:
-                return {
-                    'output': '',
-                    'error': result.stderr or 'Runtime error',
-                    'execution_time': round(execution_time, 3),
-                    'status': 'error'
-                }
+            if len(result.stdout) > self.MAX_OUTPUT_SIZE:
+                raise CompilerError("Output size exceeded limit")
                 
-        except subprocess.TimeoutExpired:
             return {
-                'output': '',
-                'error': 'Time limit exceeded (10 seconds)',
-                'execution_time': 10,
-                'status': 'timeout'
+                'output': result.stdout,
+                'error': result.stderr,
+                'returncode': result.returncode
             }
+            
+        except subprocess.TimeoutExpired:
+            raise CompilerError("Time limit exceeded")
         except Exception as e:
+            raise CompilerError(f"Execution error: {str(e)}")
+
+    def compile_and_run(self, code: str, language: str, input_data: str = "") -> Dict[str, Any]:
+        """Main method to compile and run code"""
+        try:
+            if language not in self.COMPILE_OPTIONS:
+                raise CompilerError(f"Unsupported language: {language}")
+                
+            unique_id = str(uuid.uuid4())
+            
+            # Map language to proper file extension
+            extensions = {
+                "cpp": "cpp",
+                "java": "java", 
+                "python": "py"
+            }
+            extension = extensions.get(language, language)
+            code_file = Path(self.temp_dir) / "codes" / f"{unique_id}.{extension}"
+            
+            # Write code to file
+            with open(code_file, "w", encoding='utf-8') as f:
+                f.write(code)
+            
+            result = {}
+            
+            if language == "cpp":
+                result = self._run_cpp(code_file, unique_id, input_data)
+            elif language == "java":
+                result = self._run_java(code_file, unique_id, input_data)
+            elif language == "python":
+                result = self._run_python(code_file, input_data)
+                
+            return result
+            
+        except CompilerError as e:
+            logger.error(f"Compilation/Execution error: {str(e)}")
             return {
                 'output': '',
-                'error': f'Python execution error: {str(e)}',
+                'error': str(e),
                 'execution_time': 0,
                 'status': 'error'
             }
-    
-    def _run_cpp(self, code, input_data):
+        finally:
+            self.cleanup()
+
+    def _run_cpp(self, code_file: Path, unique_id: str, 
+                input_data: str) -> Dict[str, Any]:
         """Compile and run C++ code"""
-        try:
-            # Create unique filenames
-            base_name = f"code_{uuid.uuid4().hex}"
-            cpp_file = os.path.join(self.temp_dir, f"{base_name}.cpp")
-            exe_file = os.path.join(self.temp_dir, f"{base_name}.exe")
-            
-            # Write code to file
-            with open(cpp_file, 'w', encoding='utf-8') as f:
-                f.write(code)
-            
-            # Compile the code
-            compile_result = subprocess.run(
-                ['g++', '-o', exe_file, cpp_file],
-                capture_output=True,
-                text=True,
-                timeout=10
-            )
-            
-            if compile_result.returncode != 0:
-                return {
-                    'output': '',
-                    'error': f'Compilation error:\n{compile_result.stderr}',
-                    'execution_time': 0,
-                    'status': 'compilation_error'
-                }
-            
-            # Prepare input
-            input_bytes = input_data.encode() if input_data else b''
-            
-            # Run the compiled program
-            start_time = time.time()
-            run_result = subprocess.run(
-                [exe_file],
-                input=input_bytes,
-                capture_output=True,
-                text=True,
-                timeout=10,
-                cwd=self.temp_dir
-            )
-            execution_time = time.time() - start_time
-            
-            # Clean up
-            os.remove(cpp_file)
-            if os.path.exists(exe_file):
-                os.remove(exe_file)
-            
-            if run_result.returncode == 0:
-                return {
-                    'output': run_result.stdout,
-                    'error': run_result.stderr,
-                    'execution_time': round(execution_time, 3),
-                    'status': 'success'
-                }
-            else:
-                return {
-                    'output': '',
-                    'error': run_result.stderr or 'Runtime error',
-                    'execution_time': round(execution_time, 3),
-                    'status': 'error'
-                }
-                
-        except subprocess.TimeoutExpired:
+        executable = Path(self.temp_dir) / "codes" / f"{unique_id}.exe"
+        
+        # Compile
+        compile_cmd = [*self.COMPILE_OPTIONS["cpp"], 
+                      str(code_file), "-o", str(executable)]
+        compile_result = self._secure_run(compile_cmd)
+        
+        if compile_result['returncode'] != 0:
             return {
                 'output': '',
-                'error': 'Time limit exceeded (10 seconds)',
-                'execution_time': 10,
-                'status': 'timeout'
-            }
-        except Exception as e:
-            return {
-                'output': '',
-                'error': f'C++ execution error: {str(e)}',
+                'error': f"Compilation error:\n{compile_result['error']}",
                 'execution_time': 0,
-                'status': 'error'
+                'status': 'compilation_error'
             }
-    
-    def _run_java(self, code, input_data):
+        
+        # Prepare input - ensure it ends with newline for proper input handling
+        if input_data and not input_data.endswith('\n'):
+            input_data += '\n'
+        
+        # If no input provided, create a simple input to prevent hanging
+        if not input_data.strip():
+            input_data = '1 2\n'  # Default input to prevent hanging
+       
+        
+        # Run
+        start_time = time.time()
+        run_result = self._secure_run([str(executable)], input_data)
+        execution_time = time.time() - start_time
+        
+        return {
+            'output': run_result['output'],
+            'error': run_result['error'],
+            'execution_time': round(execution_time, 3),
+            'status': 'success' if run_result['returncode'] == 0 else 'error'
+        }
+
+    def _run_java(self, code_file: Path, unique_id: str, 
+                 input_data: str) -> Dict[str, Any]:
         """Compile and run Java code"""
-        try:
-            # Create unique filenames
-            base_name = f"Code_{uuid.uuid4().hex}"
-            java_file = os.path.join(self.temp_dir, f"{base_name}.java")
-            class_file = os.path.join(self.temp_dir, f"{base_name}.class")
-            
-            # Write code to file
-            with open(java_file, 'w', encoding='utf-8') as f:
-                f.write(code)
-            
-            # Compile the code
-            compile_result = subprocess.run(
-                ['javac', java_file],
-                capture_output=True,
-                text=True,
-                timeout=10,
-                cwd=self.temp_dir
-            )
-            
-            if compile_result.returncode != 0:
-                return {
-                    'output': '',
-                    'error': f'Compilation error:\n{compile_result.stderr}',
-                    'execution_time': 0,
-                    'status': 'compilation_error'
-                }
-            
-            # Prepare input
-            input_bytes = input_data.encode() if input_data else b''
-            
-            # Run the compiled program
-            start_time = time.time()
-            run_result = subprocess.run(
-                ['java', base_name],
-                input=input_bytes,
-                capture_output=True,
-                text=True,
-                timeout=10,
-                cwd=self.temp_dir
-            )
-            execution_time = time.time() - start_time
-            
-            # Clean up
-            os.remove(java_file)
-            if os.path.exists(class_file):
-                os.remove(class_file)
-            
-            if run_result.returncode == 0:
-                return {
-                    'output': run_result.stdout,
-                    'error': run_result.stderr,
-                    'execution_time': round(execution_time, 3),
-                    'status': 'success'
-                }
-            else:
-                return {
-                    'output': '',
-                    'error': run_result.stderr or 'Runtime error',
-                    'execution_time': round(execution_time, 3),
-                    'status': 'error'
-                }
-                
-        except subprocess.TimeoutExpired:
+        class_file = Path(self.temp_dir) / "codes" / f"{unique_id}.class"
+        
+        # Compile
+        compile_cmd = [*self.COMPILE_OPTIONS["java"], str(code_file)]
+        compile_result = self._secure_run(compile_cmd)
+        
+        if compile_result['returncode'] != 0:
             return {
                 'output': '',
-                'error': 'Time limit exceeded (10 seconds)',
-                'execution_time': 10,
-                'status': 'timeout'
-            }
-        except Exception as e:
-            return {
-                'output': '',
-                'error': f'Java execution error: {str(e)}',
+                'error': f"Compilation error:\n{compile_result['error']}",
                 'execution_time': 0,
-                'status': 'error'
+                'status': 'compilation_error'
             }
-    
+        
+        # Prepare input - ensure it ends with newline for proper input handling
+        if input_data and not input_data.endswith('\n'):
+            input_data += '\n'
+        
+        # If no input provided, create a simple input to prevent hanging
+        if not input_data.strip():
+            input_data = '1 2\n'  # Default input to prevent hanging
+        
+        
+        # Run
+        start_time = time.time()
+        run_cmd = ['java', '-cp', str(Path(self.temp_dir) / "codes"), unique_id]
+        run_result = self._secure_run(run_cmd, input_data)
+        execution_time = time.time() - start_time
+        
+        return {
+            'output': run_result['output'],
+            'error': run_result['error'],
+            'execution_time': round(execution_time, 3),
+            'status': 'success' if run_result['returncode'] == 0 else 'error'
+        }
+
+    def _run_python(self, code_file: Path, input_data: str) -> Dict[str, Any]:
+        """Run Python code"""
+        # Prepare input - ensure it ends with newline for proper input handling
+        if input_data and not input_data.endswith('\n'):
+            input_data += '\n'
+        
+        # If no input provided, create a simple input to prevent hanging
+        if not input_data.strip():
+            input_data = '1 2\n'  # Default input to prevent hanging
+  
+        
+        run_cmd = [*self.COMPILE_OPTIONS["python"], str(code_file)]
+        start_time = time.time()
+        result = self._secure_run(run_cmd, input_data)
+        execution_time = time.time() - start_time
+        
+        return {
+            'output': result['output'],
+            'error': result['error'],
+            'execution_time': round(execution_time, 3),
+            'status': 'success' if result['returncode'] == 0 else 'error'
+        }
+
     def cleanup(self):
         """Clean up temporary files"""
         try:
             import shutil
             shutil.rmtree(self.temp_dir)
-        except:
-            pass 
+        except Exception as e:
+            logger.error(f"Cleanup error: {str(e)}") 

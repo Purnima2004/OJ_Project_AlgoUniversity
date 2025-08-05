@@ -1,21 +1,34 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
-
-
+import json
 
 class Problem(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     difficulty = models.CharField(max_length=50, choices=[('Easy', 'Easy'), ('Medium', 'Medium'), ('Hard', 'Hard')])
-    test_cases = models.TextField(blank=True)
     examples = models.TextField(blank=True)
     constraints = models.TextField(blank=True)
+    time_limit = models.IntegerField(default=1000)  # milliseconds
+    memory_limit = models.IntegerField(default=256)  # MB
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.title
+
+class TestCase(models.Model):
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name='test_cases')
+    input_data = models.TextField()
+    expected_output = models.TextField()
+    is_sample = models.BooleanField(default=False)
+    order = models.IntegerField(default=0)
+    
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"{self.problem.title} - Test Case {self.order}"
 
 class Contest(models.Model):
     title = models.CharField(max_length=255)
@@ -23,10 +36,24 @@ class Contest(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     problems = models.ManyToManyField(Problem, blank=True)
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
+
+    @property
+    def is_running(self):
+        now = timezone.now()
+        return self.start_date <= now <= self.end_date
+
+    @property
+    def has_started(self):
+        return timezone.now() >= self.start_date
+
+    @property
+    def has_ended(self):
+        return timezone.now() > self.end_date
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -45,29 +72,42 @@ class Submission(models.Model):
         ('TLE', 'Time Limit Exceeded'),
         ('RE', 'Runtime Error'),
         ('CE', 'Compilation Error'),
+        ('MLE', 'Memory Limit Exceeded'),
+        ('PE', 'Presentation Error'),
     ]
     
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE, null=True, blank=True)
     code = models.TextField()
     language = models.CharField(max_length=20, choices=[
         ('python', 'Python'), ('cpp', 'C++'), ('java', 'Java'),
     ], default='python')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='WA')
     execution_time = models.FloatField(null=True, blank=True)
+    memory_used = models.IntegerField(null=True, blank=True)  # KB
+    test_cases_passed = models.IntegerField(default=0)
+    total_test_cases = models.IntegerField(default=0)
+    error_message = models.TextField(blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"{self.user.username} - {self.problem.title}"
-
-class ConceptOfDay(models.Model):
-    title = models.CharField(max_length=255)
-    description = models.TextField()
-    example_code = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        ordering = ['-submitted_at']
 
     def __str__(self):
-        return self.title
+        return f"{self.user.username} - {self.problem.title} - {self.status}"
+
+class SubmissionResult(models.Model):
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE, related_name='results')
+    test_case = models.ForeignKey(TestCase, on_delete=models.CASCADE)
+    status = models.CharField(max_length=10, choices=Submission.STATUS_CHOICES)
+    execution_time = models.FloatField(null=True, blank=True)
+    memory_used = models.IntegerField(null=True, blank=True)
+    actual_output = models.TextField(blank=True)
+    error_message = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.submission.id} - Test Case {self.test_case.order}"
 
 class CodeSubmission(models.Model):
     LANGUAGE_CHOICES = [
@@ -96,3 +136,12 @@ class CodeSubmission(models.Model):
             import uuid
             self.unique_id = str(uuid.uuid4())
         super().save(*args, **kwargs)
+
+class ConceptOfDay(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    example_code = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title

@@ -6,9 +6,11 @@ from django.utils import timezone
 from django.db import IntegrityError
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from .models import Problem, Contest, UserProfile, Submission, ConceptOfDay, CodeSubmission
-from .forms import CodeSubmissionForm
+from django.contrib.auth.decorators import login_required
+from .models import Problem, Contest, UserProfile, Submission, ConceptOfDay, CodeSubmission, TestCase, SubmissionResult
+from .forms import CodeSubmissionForm, ProblemSubmissionForm, ContestForm, ProblemForm, TestCaseForm
 from .compiler import CodeCompiler
+from .oj_system import OnlineJudge, TestCaseManager
 import json
 
 def register_view(request):
@@ -88,88 +90,232 @@ def leaderboard_view(request):
 
 def problem_detail(request, problem_id):
     problem = get_object_or_404(Problem, id=problem_id)
+    test_cases = list(problem.test_cases.filter(is_sample=True))
     
-    # Hardcoded problems for demo
-    if problem_id == 1:
-        problem.examples = [
-            {'input': '5', 'output': '120', 'explanation': '5! = 5 × 4 × 3 × 2 × 1 = 120'},
-            {'input': '0', 'output': '1', 'explanation': '0! = 1 by definition'},
-            {'input': '3', 'output': '6', 'explanation': '3! = 3 × 2 × 1 = 6'}
-        ]
-        problem.constraints = ['0 ≤ n ≤ 12', 'The result fits in a 32-bit integer']
-        problem.test_cases = [
-            {'input': '5', 'expected_output': '120'},
-            {'input': '0', 'expected_output': '1'},
-            {'input': '3', 'expected_output': '6'},
-            {'input': '10', 'expected_output': '3628800'}
-        ]
-    elif problem_id == 2:
-        problem.examples = [
-            {'input': '[1,2,3,4,5]', 'output': '15', 'explanation': 'Sum of all elements: 1+2+3+4+5 = 15'},
-            {'input': '[10,20,30]', 'output': '60', 'explanation': 'Sum of all elements: 10+20+30 = 60'},
-            {'input': '[]', 'output': '0', 'explanation': 'Empty array has sum 0'}
-        ]
-        problem.constraints = ['1 ≤ arr.length ≤ 1000', '-1000 ≤ arr[i] ≤ 1000']
-        problem.test_cases = [
-            {'input': '[1,2,3,4,5]', 'expected_output': '15'},
-            {'input': '[10,20,30]', 'expected_output': '60'},
-            {'input': '[]', 'expected_output': '0'},
-            {'input': '[-1,-2,3]', 'expected_output': '0'}
-        ]
-    elif problem_id == 3:
-        problem.examples = [
-            {'input': '"hello"', 'output': 'olleh', 'explanation': 'Reverse of "hello" is "olleh"'},
-            {'input': '"world"', 'output': 'dlrow', 'explanation': 'Reverse of "world" is "dlrow"'},
-            {'input': '""', 'output': '""', 'explanation': 'Empty string reversed is empty string'}
-        ]
-        problem.constraints = ['1 ≤ s.length ≤ 100', 's consists of printable ASCII characters']
-        problem.test_cases = [
-            {'input': '"hello"', 'expected_output': 'olleh'},
-            {'input': '"world"', 'expected_output': 'dlrow'},
-            {'input': '""', 'expected_output': '""'},
-            {'input': '"a"', 'expected_output': 'a'}
-        ]
-    elif problem_id == 4:
-        problem.examples = [
-            {'input': 'n=5', 'output': 'true', 'explanation': '5 is prime (divisible only by 1 and 5)'},
-            {'input': 'n=4', 'output': 'false', 'explanation': '4 is not prime (divisible by 1, 2, 4)'},
-            {'input': 'n=1', 'output': 'false', 'explanation': '1 is not considered prime'}
-        ]
-        problem.constraints = ['1 ≤ n ≤ 1000']
-        problem.test_cases = [
-            {'input': '5', 'expected_output': 'true'},
-            {'input': '4', 'expected_output': 'false'},
-            {'input': '1', 'expected_output': 'false'},
-            {'input': '17', 'expected_output': 'true'}
-        ]
-    elif problem_id == 5:
-        problem.examples = [
-            {'input': '[1,2,3,1]', 'output': 'true', 'explanation': '1 appears twice in the array'},
-            {'input': '[1,2,3,4]', 'output': 'false', 'explanation': 'No duplicates in the array'},
-            {'input': '[1,1,1,3,3,4,3,2,4,2]', 'output': 'true', 'explanation': 'Multiple duplicates exist'}
-        ]
-        problem.constraints = ['1 ≤ nums.length ≤ 105', '-109 ≤ nums[i] ≤ 109']
-        problem.test_cases = [
-            {'input': '[1,2,3,1]', 'expected_output': 'true'},
-            {'input': '[1,2,3,4]', 'expected_output': 'false'},
-            {'input': '[1,1,1,3,3,4,3,2,4,2]', 'expected_output': 'true'},
-            {'input': '[1]', 'expected_output': 'false'}
-        ]
-    elif problem_id == 6:
-        problem.examples = [
-            {'input': 'n=4', 'output': '2', 'explanation': 'There are 2 ways: (1,1,1,1) and (1,1,2)'},
-            {'input': 'n=3', 'output': '3', 'explanation': 'There are 3 ways: (1,1,1), (1,2), (2,1)'},
-            {'input': 'n=2', 'output': '2', 'explanation': 'There are 2 ways: (1,1), (2)'}
-        ]
-        problem.constraints = ['1 ≤ n ≤ 45']
-        problem.test_cases = [
-            {'input': '4', 'expected_output': '2'},
-            {'input': '3', 'expected_output': '3'},
-            {'input': '2', 'expected_output': '2'},
-            {'input': '5', 'expected_output': '8'}
-        ]
+    if request.method == 'POST' and request.user.is_authenticated:
+        form = ProblemSubmissionForm(request.POST)
+        if form.is_valid():
+            submission = form.save(commit=False)
+            submission.user = request.user
+            submission.problem = problem
+            submission.save()
+            
+            # Judge the submission
+            oj = OnlineJudge()
+            result = oj.judge_submission(submission)
+            
+            return JsonResponse({
+                'success': True,
+                'status': result['status'],
+                'test_cases_passed': result['test_cases_passed'],
+                'total_test_cases': result['total_test_cases'],
+                'execution_time': result.get('execution_time', 0),
+                'error_message': result.get('error_message', '')
+            })
+    else:
+        form = ProblemSubmissionForm()
     
-    return render(request, 'problems/problem_detail.html', {'problem': problem})
+    context = {
+        'problem': problem,
+        'form': form,
+        'test_cases': test_cases
+    }
+    return render(request, 'problems/problem_detail.html', context)
+
+@csrf_exempt  # Allow AJAX from unauthenticated users for run mode
+@login_required
+def submit_solution(request, problem_id):
+    """Handle solution submission via AJAX. Supports 'run' and 'submit' modes."""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            problem = get_object_or_404(Problem, id=problem_id)
+            mode = data.get('mode', 'submit')
+            code = data.get('code', '')
+            language = data.get('language', 'python')
+            if mode == 'run':
+                # Judge only sample test cases, do not save submission
+                class TempSubmission:
+                    def __init__(self, user, problem, code, language):
+                        self.user = user
+                        self.problem = problem
+                        self.code = code
+                        self.language = language
+                        self.status = None
+                        self.test_cases_passed = 0
+                        self.total_test_cases = 0
+                        self.error_message = ''
+                        self.execution_time = 0
+                        self.memory_used = 0
+                temp_submission = TempSubmission(request.user, problem, code, language)
+                oj = OnlineJudge()
+                # Only sample test cases
+                sample_cases = problem.test_cases.filter(is_sample=True)
+                result = oj.judge_submission(temp_submission, test_cases=sample_cases)
+                return JsonResponse({
+                    'success': True,
+                    'status': result['status'],
+                    'test_cases_passed': result['test_cases_passed'],
+                    'total_test_cases': result['total_test_cases'],
+                    'execution_time': result.get('execution_time', 0),
+                    'error_message': result.get('error_message', ''),
+                    'test_cases': result.get('test_cases', [])
+                })
+            else:
+                # Normal submit: save submission and judge all test cases
+                submission = Submission.objects.create(
+                    user=request.user,
+                    problem=problem,
+                    code=code,
+                    language=language
+                )
+                oj = OnlineJudge()
+                result = oj.judge_submission(submission)
+                return JsonResponse({
+                    'success': True,
+                    'submission_id': submission.id,
+                    'status': result['status'],
+                    'test_cases_passed': result['test_cases_passed'],
+                    'total_test_cases': result['total_test_cases'],
+                    'execution_time': result.get('execution_time', 0),
+                    'error_message': result.get('error_message', ''),
+                    'test_cases': result.get('test_cases', [])
+                })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+def submission_detail_view(request, submission_id):
+    """View detailed results of a submission"""
+    submission = get_object_or_404(Submission, id=submission_id)
+    results = submission.results.all()
+    
+    context = {
+        'submission': submission,
+        'results': results
+    }
+    return render(request, 'submission/submission_detail.html', context)
+
+@login_required
+def contest_detail(request, contest_id):
+    """View contest details and problems"""
+    contest = get_object_or_404(Contest, id=contest_id)
+    problems = contest.problems.all()
+    
+    context = {
+        'contest': contest,
+        'problems': problems
+    }
+    return render(request, 'contests/contest_detail.html', context)
+
+# Admin views for managing problems and contests
+@login_required
+def create_problem(request):
+    """Create a new problem"""
+    if not request.user.is_superuser:
+        return redirect('home')
+    
+    if request.method == 'POST':
+        form = ProblemForm(request.POST)
+        if form.is_valid():
+            problem = form.save()
+            return redirect('problem_detail', problem_id=problem.id)
+    else:
+        form = ProblemForm()
+    
+    return render(request, 'admin/create_problem.html', {'form': form})
+
+@login_required
+def create_contest(request):
+    """Create a new contest"""
+    if not request.user.is_superuser:
+        return redirect('home')
+    
+    if request.method == 'POST':
+        form = ContestForm(request.POST)
+        if form.is_valid():
+            contest = form.save()
+            return redirect('contest_detail', contest_id=contest.id)
+    else:
+        form = ContestForm()
+    
+    return render(request, 'admin/create_contest.html', {'form': form})
+
+@login_required
+def manage_test_cases(request, problem_id):
+    """Manage test cases for a problem"""
+    if not request.user.is_superuser:
+        return redirect('home')
+    
+    problem = get_object_or_404(Problem, id=problem_id)
+    test_cases = problem.test_cases.all()
+    
+    if request.method == 'POST':
+        form = TestCaseForm(request.POST)
+        if form.is_valid():
+            test_case = form.save(commit=False)
+            test_case.problem = problem
+            test_case.save()
+            return redirect('manage_test_cases', problem_id=problem_id)
+    else:
+        form = TestCaseForm()
+    
+    context = {
+        'problem': problem,
+        'test_cases': test_cases,
+        'form': form
+    }
+    return render(request, 'admin/manage_test_cases.html', context)
+
+def create_sample_data(request):
+    """Create sample problems and test cases for demonstration"""
+    if not request.user.is_superuser:
+        return redirect('home')
+    
+    # Create sample problems
+    problems_data = [
+        {
+            'title': 'Two Sum',
+            'description': 'Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.',
+            'difficulty': 'Easy',
+            'examples': 'Input: nums = [2,7,11,15], target = 9\nOutput: [0,1]\nExplanation: Because nums[0] + nums[1] == 9, we return [0, 1].',
+            'constraints': '2 <= nums.length <= 104\n-109 <= nums[i] <= 109\n-109 <= target <= 109',
+            'time_limit': 1000,
+            'memory_limit': 256
+        },
+        {
+            'title': 'Add Two Numbers',
+            'description': 'You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list.',
+            'difficulty': 'Medium',
+            'examples': 'Input: l1 = [2,4,3], l2 = [5,6,4]\nOutput: [7,0,8]\nExplanation: 342 + 465 = 807.',
+            'constraints': 'The number of nodes in each linked list is in the range [1, 100].\n0 <= Node.val <= 9\nIt is guaranteed that the list represents a number that does not have leading zeros.',
+            'time_limit': 1000,
+            'memory_limit': 256
+        },
+        {
+            'title': 'Longest Substring Without Repeating Characters',
+            'description': 'Given a string s, find the length of the longest substring without repeating characters.',
+            'difficulty': 'Medium',
+            'examples': 'Input: s = "abcabcbb"\nOutput: 3\nExplanation: The answer is "abc", with the length of 3.',
+            'constraints': '0 <= s.length <= 5 * 104\ns consists of English letters, digits, symbols and spaces.',
+            'time_limit': 1000,
+            'memory_limit': 256
+        }
+    ]
+    
+    for data in problems_data:
+        problem, created = Problem.objects.get_or_create(
+            title=data['title'],
+            defaults=data
+        )
+    
+    # Create sample test cases
+    TestCaseManager.create_sample_test_cases()
+    
+    return redirect('problems')
 
 # Online Compiler Views
 def compiler_view(request):
