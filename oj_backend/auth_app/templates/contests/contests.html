@@ -12,7 +12,9 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #757F9A;  /* fallback for old browsers */
+            background: -webkit-linear-gradient(to right, #D7DDE8, #757F9A);  /* Chrome 10-25, Safari 5.1-6 */
+            background: linear-gradient(to right, #D7DDE8, #757F9A); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
             min-height: 100vh;
             color: #333;
         }
@@ -47,8 +49,8 @@
             padding: 0.7rem 1.5rem;
             border: none;
             border-radius: 25px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
+            background: #a3a2bb !important;
+            color: #fff !important;
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
@@ -263,7 +265,7 @@
             display: inline-block;
             padding: 0.5rem 1rem;
             border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: 1rem;
             font-weight: bold;
             text-align: center;
             margin-bottom: 1rem;
@@ -277,6 +279,7 @@
         .status-ended {
             background: #f8d7da;
             color: #721c24;
+            font-size: 1.2rem;
         }
         
         .join-btn {
@@ -294,6 +297,23 @@
         .join-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .view-btn {
+            width: 100%;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .view-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
         }
         
         @media (max-width: 768px) {
@@ -352,11 +372,11 @@
                 <div class="contest-details">
                     <div class="detail-item">
                         <div class="detail-label">Start Date</div>
-                        <div class="detail-value">{{ contest.start_date|date:"M d, Y" }}</div>
+                        <div class="detail-value">{{ contest.start_date|date:"M d, Y H:i" }}</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">End Date</div>
-                        <div class="detail-value">{{ contest.end_date|date:"M d, Y" }}</div>
+                        <div class="detail-value">{{ contest.end_date|date:"M d, Y H:i" }}</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">Problems</div>
@@ -368,8 +388,27 @@
                     </div>
                 </div>
                 
-                <div class="contest-status status-active">Active</div>
-                <button class="join-btn">Join Contest</button>
+                <div class="contest-status status-{{ contest.is_running|yesno:'running,upcoming' }}">
+                    {% if contest.is_running %}
+                        Running
+                    {% elif contest.has_started %}
+                        Ended
+                    {% else %}
+                        Upcoming
+                    {% endif %}
+                </div>
+                
+                {% if user.is_authenticated %}
+                    {% if contest.is_running %}
+                        <button class="join-btn" onclick="startContest({{ contest.id }})">Start Contest</button>
+                    {% elif contest.has_started %}
+                        <button class="view-btn" onclick="viewContest({{ contest.id }})">View Results</button>
+                    {% else %}
+                        <button class="join-btn disabled" disabled>Upcoming</button>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'login' %}" class="join-btn">Login to Join</a>
+                {% endif %}
             </div>
             {% empty %}
             <div class="contest-card">
@@ -387,6 +426,47 @@
         function toggleDropdown() {
             const dropdown = document.getElementById('profileDropdown');
             dropdown.classList.toggle('show');
+        }
+        
+        function startContest(contestId) {
+            fetch(`/auth/contest/${contestId}/start/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Redirect to contest detail page
+                    window.location.href = `/auth/contest/${contestId}/`;
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Network error: ' + error);
+            });
+        }
+        
+        function viewContest(contestId) {
+            window.location.href = `/auth/contest/${contestId}/`;
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
         }
         
         document.addEventListener('click', function(event) {

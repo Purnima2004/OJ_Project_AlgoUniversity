@@ -33,7 +33,7 @@ class CodeCompiler:
     COMPILE_OPTIONS = {
         "cpp": ["g++", "-O2", "-std=c++17", "-Wall"],
         "java": ["javac", "-Xlint"],
-        "python": ["python3", "-B"],  # -B prevents writing .pyc files
+        "python": ["python", "-B"],  # Use 'python' for Windows compatibility
     }
     
     def __init__(self):
@@ -93,25 +93,43 @@ class CodeCompiler:
                 
             unique_id = str(uuid.uuid4())
             
+            # Create codes directory if it doesn't exist
+            codes_dir = Path(self.temp_dir) / "codes"
+            codes_dir.mkdir(parents=True, exist_ok=True)
+
             # Map language to proper file extension
             extensions = {
                 "cpp": "cpp",
-                "java": "java", 
+                "java": "java",
                 "python": "py"
             }
-            extension = extensions.get(language, language)
-            code_file = Path(self.temp_dir) / "codes" / f"{unique_id}.{extension}"
+
+            # --- Java class name fix ---
+            if language == "java":
+                import re
+                # Generate a valid Java class name from unique_id
+                java_class_name = f"Main_{unique_id.replace('-', '_')}"
+                # Replace 'public class <something>' or 'class <something>' with our class name
+                code = re.sub(r'(public\s+)?class\s+\w+', f'class {java_class_name}', code)
+                extension = "java"
+                code_file = codes_dir / f"{java_class_name}.java"
+            else:
+                extension = extensions.get(language, language)
+                code_file = codes_dir / f"{unique_id}.{extension}"
             
             # Write code to file
             with open(code_file, "w", encoding='utf-8') as f:
                 f.write(code)
+            
+            print(f"DEBUG: Created file: {code_file}")
+            print(f"DEBUG: File exists: {code_file.exists()}")
             
             result = {}
             
             if language == "cpp":
                 result = self._run_cpp(code_file, unique_id, input_data)
             elif language == "java":
-                result = self._run_java(code_file, unique_id, input_data)
+                result = self._run_java(code_file, java_class_name, input_data)
             elif language == "python":
                 result = self._run_python(code_file, input_data)
                 
@@ -125,61 +143,145 @@ class CodeCompiler:
                 'execution_time': 0,
                 'status': 'error'
             }
-        finally:
-            self.cleanup()
+        except Exception as e:
+            logger.error(f"Unexpected error: {str(e)}")
+            return {
+                'output': '',
+                'error': f"Unexpected error: {str(e)}",
+                'execution_time': 0,
+                'status': 'error'
+            }
 
     def _run_cpp(self, code_file: Path, unique_id: str, 
-                input_data: str) -> Dict[str, Any]:
+                 input_data: str) -> Dict[str, Any]:
         """Compile and run C++ code"""
-        executable = Path(self.temp_dir) / "codes" / f"{unique_id}.exe"
-        
-        # Compile
-        compile_cmd = [*self.COMPILE_OPTIONS["cpp"], 
-                      str(code_file), "-o", str(executable)]
-        compile_result = self._secure_run(compile_cmd)
-        
-        if compile_result['returncode'] != 0:
+        try:
+            # Ensure the codes directory exists
+            codes_dir = Path(self.temp_dir) / "codes"
+            codes_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Use .exe extension on Windows
+            import platform
+            if platform.system() == "Windows":
+                executable = codes_dir / f"{unique_id}.exe"
+            else:
+                executable = codes_dir / unique_id
+            
+            print(f"DEBUG: C++ compilation - code_file: {code_file}")
+            print(f"DEBUG: C++ compilation - executable: {executable}")
+            print(f"DEBUG: C++ compilation - code_file exists: {code_file.exists()}")
+            
+            # Try different C++ compiler commands for Windows compatibility
+            cpp_commands = ["g++", "g++.exe"]
+            
+            # Try to compile with different g++ commands
+            compile_success = False
+            for gpp_cmd in cpp_commands:
+                try:
+                    compile_cmd = [gpp_cmd, "-O2", "-std=c++17", "-Wall", 
+                                  str(code_file), "-o", str(executable)]
+                    print(f"DEBUG: Compile command: {compile_cmd}")
+                    
+                    compile_result = self._secure_run(compile_cmd)
+                    print(f"DEBUG: Compile result: {compile_result}")
+                    
+                    if compile_result['returncode'] == 0:
+                        compile_success = True
+                        break
+                    elif "not found" in compile_result['error'] or "cannot find" in compile_result['error']:
+                        # Try next command
+                        continue
+                    else:
+                        # Compilation error, not command not found
+                        return {
+                            'output': '',
+                            'error': f"Compilation error:\n{compile_result['error']}",
+                            'execution_time': 0,
+                            'status': 'compilation_error'
+                        }
+                except Exception as e:
+                    # Try next command
+                    continue
+            
+            if not compile_success:
+                return {
+                    'output': '',
+                    'error': 'C++ compiler (g++) not found. Please ensure MinGW or similar C++ compiler is installed and added to PATH.',
+                    'execution_time': 0,
+                    'status': 'compilation_error'
+                }
+            
+            print(f"DEBUG: Executable created: {executable.exists()}")
+            
+            # Prepare input - ensure it ends with newline for proper input handling
+            if input_data and not input_data.endswith('\n'):
+                input_data += '\n'
+            
+            # If no input provided, create a simple input to prevent hanging
+            if not input_data.strip():
+                input_data = '1 2\n'  # Default input to prevent hanging
+            
+            print(f"DEBUG: Input data: '{input_data}'")
+            
+            # Run
+            start_time = time.time()
+            run_result = self._secure_run([str(executable)], input_data)
+            execution_time = time.time() - start_time
+            
+            print(f"DEBUG: Run result: {run_result}")
+            
+            return {
+                'output': run_result['output'],
+                'error': run_result['error'],
+                'execution_time': round(execution_time, 3),
+                'status': 'success' if run_result['returncode'] == 0 else 'error'
+            }
+        except Exception as e:
+            print(f"DEBUG: C++ execution error: {str(e)}")
             return {
                 'output': '',
-                'error': f"Compilation error:\n{compile_result['error']}",
+                'error': f"C++ execution error: {str(e)}",
                 'execution_time': 0,
-                'status': 'compilation_error'
+                'status': 'error'
             }
-        
-        # Prepare input - ensure it ends with newline for proper input handling
-        if input_data and not input_data.endswith('\n'):
-            input_data += '\n'
-        
-        # If no input provided, create a simple input to prevent hanging
-        if not input_data.strip():
-            input_data = '1 2\n'  # Default input to prevent hanging
-       
-        
-        # Run
-        start_time = time.time()
-        run_result = self._secure_run([str(executable)], input_data)
-        execution_time = time.time() - start_time
-        
-        return {
-            'output': run_result['output'],
-            'error': run_result['error'],
-            'execution_time': round(execution_time, 3),
-            'status': 'success' if run_result['returncode'] == 0 else 'error'
-        }
 
-    def _run_java(self, code_file: Path, unique_id: str, 
+    def _run_java(self, code_file: Path, java_class_name: str, 
                  input_data: str) -> Dict[str, Any]:
         """Compile and run Java code"""
-        class_file = Path(self.temp_dir) / "codes" / f"{unique_id}.class"
+        class_file = Path(self.temp_dir) / "codes" / f"{java_class_name}.class"
         
-        # Compile
-        compile_cmd = [*self.COMPILE_OPTIONS["java"], str(code_file)]
-        compile_result = self._secure_run(compile_cmd)
+        # Try different Java commands for Windows compatibility
+        java_commands = ["javac", "javac.exe"]
         
-        if compile_result['returncode'] != 0:
+        # Try to compile with different javac commands
+        compile_success = False
+        for javac_cmd in java_commands:
+            try:
+                compile_cmd = [javac_cmd, str(code_file)]
+                compile_result = self._secure_run(compile_cmd)
+                
+                if compile_result['returncode'] == 0:
+                    compile_success = True
+                    break
+                elif "not found" in compile_result['error'] or "cannot find" in compile_result['error']:
+                    # Try next command
+                    continue
+                else:
+                    # Compilation error, not command not found
+                    return {
+                        'output': '',
+                        'error': f"Compilation error:\n{compile_result['error']}",
+                        'execution_time': 0,
+                        'status': 'compilation_error'
+                    }
+            except Exception as e:
+                # Try next command
+                continue
+        
+        if not compile_success:
             return {
                 'output': '',
-                'error': f"Compilation error:\n{compile_result['error']}",
+                'error': 'Java compiler (javac) not found. Please ensure Java JDK is installed and added to PATH.',
                 'execution_time': 0,
                 'status': 'compilation_error'
             }
@@ -192,18 +294,33 @@ class CodeCompiler:
         if not input_data.strip():
             input_data = '1 2\n'  # Default input to prevent hanging
         
+        # Try different java commands for running
+        java_commands = ["java", "java.exe"]
         
-        # Run
-        start_time = time.time()
-        run_cmd = ['java', '-cp', str(Path(self.temp_dir) / "codes"), unique_id]
-        run_result = self._secure_run(run_cmd, input_data)
-        execution_time = time.time() - start_time
+        for java_cmd in java_commands:
+            try:
+                # Run
+                start_time = time.time()
+                run_cmd = [java_cmd, '-cp', str(Path(self.temp_dir) / "codes"), java_class_name]
+                run_result = self._secure_run(run_cmd, input_data)
+                execution_time = time.time() - start_time
+                
+                return {
+                    'output': run_result['output'],
+                    'error': run_result['error'],
+                    'execution_time': round(execution_time, 3),
+                    'status': 'success' if run_result['returncode'] == 0 else 'error'
+                }
+            except Exception as e:
+                # Try next command
+                continue
         
+        # If all java commands fail
         return {
-            'output': run_result['output'],
-            'error': run_result['error'],
-            'execution_time': round(execution_time, 3),
-            'status': 'success' if run_result['returncode'] == 0 else 'error'
+            'output': '',
+            'error': 'Java runtime (java) not found. Please ensure Java JRE is installed and added to PATH.',
+            'execution_time': 0,
+            'status': 'error'
         }
 
     def _run_python(self, code_file: Path, input_data: str) -> Dict[str, Any]:
@@ -215,18 +332,34 @@ class CodeCompiler:
         # If no input provided, create a simple input to prevent hanging
         if not input_data.strip():
             input_data = '1 2\n'  # Default input to prevent hanging
-  
         
-        run_cmd = [*self.COMPILE_OPTIONS["python"], str(code_file)]
-        start_time = time.time()
-        result = self._secure_run(run_cmd, input_data)
-        execution_time = time.time() - start_time
+        # Try different Python commands for Windows compatibility
+        python_commands = ["python", "python3", "py"]
         
+        for python_cmd in python_commands:
+            try:
+                run_cmd = [python_cmd, "-B", str(code_file)]
+                start_time = time.time()
+                result = self._secure_run(run_cmd, input_data)
+                execution_time = time.time() - start_time
+                
+                # If we get here, the command worked
+                return {
+                    'output': result['output'],
+                    'error': result['error'],
+                    'execution_time': round(execution_time, 3),
+                    'status': 'success' if result['returncode'] == 0 else 'error'
+                }
+            except Exception as e:
+                # If this command fails, try the next one
+                continue
+        
+        # If all commands fail, return an error
         return {
-            'output': result['output'],
-            'error': result['error'],
-            'execution_time': round(execution_time, 3),
-            'status': 'success' if result['returncode'] == 0 else 'error'
+            'output': '',
+            'error': 'Python not found. Please ensure Python is installed and added to PATH.',
+            'execution_time': 0,
+            'status': 'error'
         }
 
     def cleanup(self):

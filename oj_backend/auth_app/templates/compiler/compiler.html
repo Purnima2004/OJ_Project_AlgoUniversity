@@ -12,7 +12,9 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #757F9A;  /* fallback for old browsers */
+            background: -webkit-linear-gradient(to right, #D7DDE8, #757F9A);  /* Chrome 10-25, Safari 5.1-6 */
+            background: linear-gradient(to right, #D7DDE8, #757F9A); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
             min-height: 100vh;
             color: #333;
         }
@@ -47,8 +49,8 @@
             padding: 0.7rem 1.5rem;
             border: none;
             border-radius: 25px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
+            background: #a3a2bb !important;
+            color: #fff !important;
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
@@ -526,11 +528,13 @@
                 </div>
                 
                 <button id="run-btn" class="run-btn">▶ Run Code</button>
+                <button id="ai-review-btn" class="run-btn" style="margin-left: 10px;">AI Review</button>
                 
                 <div id="loading" class="loading">
                     <div class="spinner"></div>
                     <p>Compiling and running your code...</p>
                 </div>
+                <div id="ai-review-result" style="display:none; margin-top: 1rem; border: 1px solid #a3a2bb; background: #f8f8fa; color: #222; padding: 1rem; border-radius: 8px;"></div>
             </div>
             
             <div class="output-section">
@@ -745,6 +749,29 @@ public class Main {
                 dropdown.classList.remove('show');
             }
         });
+        
+        // AI Review button click handler
+        document.getElementById('ai-review-btn').onclick = function() {
+            const code = document.getElementById('code-editor').value; // Adjust ID if different
+            const language = document.getElementById('language-select') ? document.getElementById('language-select').value : 'python';
+
+            const resultBox = document.getElementById('ai-review-result');
+            resultBox.style.display = 'block';
+            resultBox.innerText = 'Reviewing your code...';
+
+            fetch('/api/ai_review/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({code, language})
+            })
+            .then(response => response.json())
+            .then(data => {
+                resultBox.innerText = data.review || data.error || 'No response from AI.';
+            })
+            .catch(err => {
+                resultBox.innerText = 'AI Review failed: ' + err;
+            });
+        };
     </script>
 </body>
-</html> 
+</html>

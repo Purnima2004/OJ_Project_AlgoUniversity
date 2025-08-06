@@ -40,8 +40,8 @@
             padding: 0.7rem 1.5rem;
             border: none;
             border-radius: 25px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
+            background: #a3a2bb !important;
+            color: #fff !important;
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
@@ -611,9 +611,9 @@
             {% if problem.examples %}
             <div class="examples">
                 <h3>Examples</h3>
-                <div class="example-block">
+                    <div class="example-block">
                     {{ problem.examples|linebreaks }}
-                </div>
+                    </div>
             </div>
             {% endif %}
             {% if problem.constraints %}
@@ -635,27 +635,10 @@
                 <div>
                     <button class="run-btn" onclick="runTestCases()">Run</button>
                     <button class="submit-btn" id="submit-btn" onclick="submitSolution()">Submit</button>
+                    <button id="ai-review-btn" class="run-btn" style="margin-left: 10px;">AI Review</button>
                 </div>
             </div>
-            <textarea class="code-editor" id="code-editor" placeholder="# Write your code here...">{% if problem.title == "Two Sum" %}# Two Sum Solution
-# Read input
-n = int(input())
-nums = list(map(int, input().split()))
-target = int(input())
-
-# Find two numbers that add up to target
-def twoSum(nums, target):
-    seen = {}
-    for i, num in enumerate(nums):
-        complement = target - num
-        if complement in seen:
-            return [seen[complement], i]
-        seen[num] = i
-    return []
-
-# Get result
-result = twoSum(nums, target)
-print(result[0], result[1]){% endif %}</textarea>
+            <textarea class="code-editor" id="code-editor" placeholder="# Write your code here..."></textarea>
             
             <!-- Submission Results Section -->
             <div id="submission-results" class="submission-results" style="display: none;">
@@ -688,6 +671,8 @@ print(result[0], result[1]){% endif %}</textarea>
                     <div id="error-message" class="error-message" style="display: none;"></div>
                 </div>
             </div>
+            
+            <div id="ai-review-result" style="display:none; margin-top: 1rem; border: 1px solid #a3a2bb; background: #f8f8fa; color: #222; padding: 1rem; border-radius: 8px;"></div>
             
             <div class="test-cases">
                 <h3>Sample Test Cases</h3>
@@ -836,18 +821,23 @@ print(result[0], result[1]){% endif %}</textarea>
             testCaseTabs.style.display = 'none';
             testCaseContent.style.display = 'none';
             
-            // Submit the solution via AJAX
+            const requestBody = {
+                code: code,
+                language: language,
+                mode: 'submit'
+            };
+            
+            {% if contest %}
+            requestBody.contest_id = {{ contest.id }};
+            {% endif %}
+            
             fetch(`/auth/problem/{{ problem.id }}/submit/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken')
                 },
-                body: JSON.stringify({
-                    code: code,
-                    language: language,
-                    mode: 'submit'
-                })
+                body: JSON.stringify(requestBody)
             })
             .then(response => response.json())
             .then(data => {
@@ -858,6 +848,11 @@ print(result[0], result[1]){% endif %}</textarea>
                     // Store test cases globally for tab switching
                     window.currentTestCases = data.test_cases || [];
                     displayResults(data);
+                    
+                    // Clear saved code only if submission is successful
+                    if (data.status === 'AC') {
+                        clearSavedCode();
+                    }
                 } else {
                     displayError(data.error);
                 }
@@ -1054,6 +1049,51 @@ print(result[0], result[1]){% endif %}</textarea>
             }
             return cookieValue;
         }
+
+        // Get problem ID for localStorage key
+        const problemId = {{ problem.id }};
+        
+        // Save code to localStorage when user types
+        document.getElementById('code-editor').addEventListener('input', function() {
+            const code = this.value;
+            localStorage.setItem(`code_editor_content_${problemId}`, code);
+        });
+        
+        // Restore code from localStorage when page loads
+        window.addEventListener('load', function() {
+            const savedCode = localStorage.getItem(`code_editor_content_${problemId}`);
+            if (savedCode) {
+                document.getElementById('code-editor').value = savedCode;
+            }
+        });
+        
+        // Clear saved code when user clicks "Submit" and gets AC
+        function clearSavedCode() {
+            localStorage.removeItem(`code_editor_content_${problemId}`);
+        }
+
+        const AI_REVIEW_URL = '/auth/api/ai_review/';
+        if (document.getElementById('ai-review-btn')) {
+            document.getElementById('ai-review-btn').onclick = function() {
+                const code = document.getElementById('code-editor').value;
+                const language = document.getElementById('language-select') ? document.getElementById('language-select').value : 'python';
+                const resultBox = document.getElementById('ai-review-result');
+                resultBox.style.display = 'block';
+                resultBox.innerText = 'Reviewing your code...';
+                fetch(AI_REVIEW_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({code, language})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    resultBox.innerText = data.review || data.error || 'No response from AI.';
+                })
+                .catch(err => {
+                    resultBox.innerText = 'AI Review failed: ' + err;
+                });
+            };
+        }
     </script>
 </body>
-</html> 
+</html>

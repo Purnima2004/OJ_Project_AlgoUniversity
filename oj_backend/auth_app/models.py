@@ -137,6 +137,43 @@ class CodeSubmission(models.Model):
             self.unique_id = str(uuid.uuid4())
         super().save(*args, **kwargs)
 
+class ContestParticipation(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
+    start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    score = models.IntegerField(default=0)
+    problems_solved = models.ManyToManyField(Problem, blank=True)
+    is_active = models.BooleanField(default=True)
+    
+    class Meta:
+        unique_together = ['user', 'contest']
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.contest.title}"
+    
+    @property
+    def time_remaining(self):
+        """Get remaining time in seconds"""
+        if not self.is_active:
+            return 0
+        
+        contest_end = self.contest.end_date
+        now = timezone.now()
+        
+        if now >= contest_end:
+            return 0
+        
+        return int((contest_end - now).total_seconds())
+    
+    @property
+    def elapsed_time(self):
+        """Get elapsed time in seconds"""
+        if self.end_time:
+            return int((self.end_time - self.start_time).total_seconds())
+        else:
+            return int((timezone.now() - self.start_time).total_seconds())
+
 class ConceptOfDay(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()

@@ -51,6 +51,8 @@ class OnlineJudge:
                     submission.memory_used = sum(memory_usage) / len(memory_usage)
                 submission.save()
                 self._save_test_case_results(submission, results)
+                # Clean up compiler resources
+                self.compiler.cleanup()
             # Prepare test case details for frontend
             test_case_details = []
             for i, result in enumerate(results):
@@ -302,10 +304,8 @@ class TestCaseManager:
             if problem.title in sample_cases:
                 print(f"Creating test cases for {problem.title}")
                 for i, case in enumerate(sample_cases[problem.title]):
-                    # Ensure input format is correct
-                    input_data = case['input']
-                    if not input_data.endswith('\n'):
-                        input_data += '\n'
+                    # Ensure input format is correct - replace literal \n with actual newline
+                    input_data = case['input'].replace('\\n', '\n')
                     
                     test_case, created = TestCase.objects.get_or_create(
                         problem=problem,
@@ -318,6 +318,8 @@ class TestCaseManager:
                     )
                     if created:
                         print(f"Created test case {i+1} for {problem.title}")
+                        print(f"  Input: '{input_data}'")
+                        print(f"  Expected: '{case['output']}'")
                     else:
                         print(f"Test case {i+1} already exists for {problem.title}")
     

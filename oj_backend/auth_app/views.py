@@ -7,11 +7,26 @@ from django.db import IntegrityError
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
-from .models import Problem, Contest, UserProfile, Submission, ConceptOfDay, CodeSubmission, TestCase, SubmissionResult
+from .models import Problem, Contest, UserProfile, Submission, ConceptOfDay, CodeSubmission, TestCase, SubmissionResult, ContestParticipation
 from .forms import CodeSubmissionForm, ProblemSubmissionForm, ContestForm, ProblemForm, TestCaseForm
 from .compiler import CodeCompiler
 from .oj_system import OnlineJudge, TestCaseManager
 import json
+
+def update_leaderboard_ranks():
+    """Update ranks for all users based on their scores"""
+    profiles = UserProfile.objects.all().order_by('-score')
+    for rank, profile in enumerate(profiles, 1):
+        profile.rank = rank
+        profile.save()
+
+def ensure_user_profile(user):
+    """Ensure a user has a UserProfile"""
+    user_profile, created = UserProfile.objects.get_or_create(
+        user=user,
+        defaults={'score': 0, 'rank': 0}
+    )
+    return user_profile
 
 def register_view(request):
     if request.method == 'POST':
@@ -19,6 +34,8 @@ def register_view(request):
         password = request.POST['password']
         try:
             user = User.objects.create_user(username=username, password=password)
+            # Create user profile
+            ensure_user_profile(user)
             login(request, user)
             return redirect('home')
         except IntegrityError:
@@ -71,11 +88,38 @@ def home(request):
 
 def problems_view(request):
     problems = Problem.objects.all()
+    
+    # Get user's solved problems if authenticated
+    solved_problems = set()
+    if request.user.is_authenticated:
+        try:
+            user_profile = UserProfile.objects.get(user=request.user)
+            solved_problems = set(user_profile.problems_solved.all())
+        except UserProfile.DoesNotExist:
+            pass
+    
+    # Add solved status to each problem
+    for problem in problems:
+        problem.is_solved = problem in solved_problems
+    
     return render(request, 'problems/problems.html', {'problems': problems})
 
 def contests_view(request):
-    contests = Contest.objects.all()
-    return render(request, 'contests/contests.html', {'contests': contests})
+    contests = Contest.objects.filter(is_active=True).order_by('-start_date')
+    
+    # Get user's active contest participation
+    active_participation = None
+    if request.user.is_authenticated:
+        active_participation = ContestParticipation.objects.filter(
+            user=request.user,
+            is_active=True
+        ).first()
+    
+    context = {
+        'contests': contests,
+        'active_participation': active_participation
+    }
+    return render(request, 'contests/contests.html', context)
 
 def submissions_view(request):
     if request.user.is_authenticated:
@@ -85,12 +129,29 @@ def submissions_view(request):
     return render(request, 'submission/submissions.html', {'submissions': submissions})
 
 def leaderboard_view(request):
-    user_profiles = UserProfile.objects.all().order_by('-score')
+    # Get all user profiles ordered by score (highest first)
+    user_profiles = UserProfile.objects.all().order_by('-score', 'user__username')
+    
+    # Update ranks if needed
+    for rank, profile in enumerate(user_profiles, 1):
+        if profile.rank != rank:
+            profile.rank = rank
+            profile.save()
+    
     return render(request, 'leaderboard/leaderboard.html', {'user_profiles': user_profiles})
 
 def problem_detail(request, problem_id):
     problem = get_object_or_404(Problem, id=problem_id)
     test_cases = list(problem.test_cases.filter(is_sample=True))
+    
+    # Check if this is a contest problem
+    contest_id = request.GET.get('contest')
+    contest = None
+    if contest_id:
+        try:
+            contest = Contest.objects.get(id=contest_id)
+        except Contest.DoesNotExist:
+            contest = None
     
     if request.method == 'POST' and request.user.is_authenticated:
         form = ProblemSubmissionForm(request.POST)
@@ -118,7 +179,8 @@ def problem_detail(request, problem_id):
     context = {
         'problem': problem,
         'form': form,
-        'test_cases': test_cases
+        'test_cases': test_cases,
+        'contest': contest
     }
     return render(request, 'problems/problem_detail.html', context)
 
@@ -171,6 +233,54 @@ def submit_solution(request, problem_id):
                 )
                 oj = OnlineJudge()
                 result = oj.judge_submission(submission)
+                
+                # Update user profile and scores if submission is successful
+                if result['status'] == 'AC':
+                    # Get or create user profile
+                    user_profile, created = UserProfile.objects.get_or_create(
+                        user=request.user,
+                        defaults={'score': 0, 'rank': 0}
+                    )
+                    
+                    # Add problem to solved problems if not already solved
+                    if problem not in user_profile.problems_solved.all():
+                        user_profile.problems_solved.add(problem)
+                        
+                        # Update score based on problem difficulty
+                        difficulty_scores = {
+                            'Easy': 10,
+                            'Medium': 20,
+                            'Hard': 30
+                        }
+                        score_increase = difficulty_scores.get(problem.difficulty, 10)
+                        user_profile.score += score_increase
+                        user_profile.save()
+                        
+                        # Update ranks for all users
+                        update_leaderboard_ranks()
+                    
+                    # Update contest participation if this is a contest submission
+                    contest_id = data.get('contest_id')
+                    if contest_id:
+                        try:
+                            participation = ContestParticipation.objects.get(
+                                user=request.user,
+                                contest_id=contest_id,
+                                is_active=True
+                            )
+                            
+                            # Add problem to contest solved problems if not already solved
+                            if problem not in participation.problems_solved.all():
+                                participation.problems_solved.add(problem)
+                                
+                                # Update contest score
+                                contest_score_increase = difficulty_scores.get(problem.difficulty, 10)
+                                participation.score += contest_score_increase
+                                participation.save()
+                                
+                        except ContestParticipation.DoesNotExist:
+                            pass  # Not participating in contest
+                
                 return JsonResponse({
                     'success': True,
                     'submission_id': submission.id,
@@ -205,9 +315,25 @@ def contest_detail(request, contest_id):
     contest = get_object_or_404(Contest, id=contest_id)
     problems = contest.problems.all()
     
+    # Get user's participation
+    participation = ContestParticipation.objects.filter(
+        user=request.user,
+        contest=contest
+    ).first()
+    
+    # Get user's solved problems in this contest
+    solved_problems = set()
+    if participation:
+        solved_problems = set(participation.problems_solved.all())
+    
+    # Add solved status to each problem
+    for problem in problems:
+        problem.is_solved = problem in solved_problems
+    
     context = {
         'contest': contest,
-        'problems': problems
+        'problems': problems,
+        'participation': participation
     }
     return render(request, 'contests/contest_detail.html', context)
 
@@ -398,4 +524,74 @@ def my_submissions(request):
     
     submissions = CodeSubmission.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'compiler/my_submissions.html', {'submissions': submissions})
+
+@login_required
+def start_contest(request, contest_id):
+    """Start contest participation for a user"""
+    contest = get_object_or_404(Contest, id=contest_id)
+    
+    # Check if contest is running
+    if not contest.is_running:
+        return JsonResponse({
+            'success': False,
+            'error': 'Contest is not currently running'
+        })
+    
+    # Check if user is already participating
+    participation, created = ContestParticipation.objects.get_or_create(
+        user=request.user,
+        contest=contest,
+        defaults={'is_active': True}
+    )
+    
+    if not created and participation.is_active:
+        return JsonResponse({
+            'success': False,
+            'error': 'You are already participating in this contest'
+        })
+    
+    # Reactivate participation if it was inactive
+    if not participation.is_active:
+        participation.is_active = True
+        participation.start_time = timezone.now()
+        participation.end_time = None
+        participation.save()
+    
+    return JsonResponse({
+        'success': True,
+        'participation_id': participation.id,
+        'start_time': participation.start_time.isoformat(),
+        'contest_end': contest.end_date.isoformat()
+    })
+
+@login_required
+def get_contest_timer(request, contest_id):
+    """Get remaining time for contest participation"""
+    participation = get_object_or_404(ContestParticipation, 
+                                    user=request.user, 
+                                    contest_id=contest_id,
+                                    is_active=True)
+    
+    return JsonResponse({
+        'success': True,
+        'time_remaining': participation.time_remaining,
+        'elapsed_time': participation.elapsed_time
+    })
+
+@login_required
+def end_contest(request, contest_id):
+    """End contest participation"""
+    participation = get_object_or_404(ContestParticipation, 
+                                    user=request.user, 
+                                    contest_id=contest_id,
+                                    is_active=True)
+    
+    participation.is_active = False
+    participation.end_time = timezone.now()
+    participation.save()
+    
+    return JsonResponse({
+        'success': True,
+        'final_score': participation.score
+    })
 

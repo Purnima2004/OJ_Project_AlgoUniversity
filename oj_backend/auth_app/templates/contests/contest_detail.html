@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ contest.title }} - FullMoon</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #757F9A;  /* fallback for old browsers */
+            background: -webkit-linear-gradient(to right, #D7DDE8, #757F9A);  /* Chrome 10-25, Safari 5.1-6 */
+            background: linear-gradient(to right, #D7DDE8, #757F9A); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .nav-btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            background: #a3a2bb !important;
+            color: #fff !important;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .auth-btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .login-btn {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .login-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .signup-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .signup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            margin-left: auto;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 25px;
+            transition: background-color 0.3s;
+        }
+        
+        .user-info:hover {
+            background-color: rgba(102, 126, 234, 0.1);
+        }
+        
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            min-width: 200px;
+            z-index: 1000;
+            display: none;
+            margin-top: 0.5rem;
+        }
+        
+        .profile-dropdown.show {
+            display: block;
+        }
+        
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #eee;
+            text-decoration: none;
+            color: #333;
+            display: block;
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background-color: #eee;
+            margin: 0.5rem 0;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .contest-header {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .contest-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .contest-description {
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        .contest-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-value {
+            color: #333;
+        }
+        
+        .timer-section {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .timer-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .timer-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .timer-warning {
+            color: #ff6b6b;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .problems-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+        
+        .problems-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .problem-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+        
+        .problem-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .problem-card.solved {
+            border-left-color: #28a745;
+            background: #f8fff9;
+        }
+        
+        .problem-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .problem-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .problem-link {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .problem-link:hover {
+            color: #667eea;
+        }
+        
+        .difficulty-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .difficulty-easy {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .difficulty-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .difficulty-hard {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .problem-status {
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .status-solved {
+            color: #28a745;
+        }
+        
+        .status-unsolved {
+            color: #666;
+        }
+        
+        .participation-status {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .end-contest-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .end-contest-btn:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+        
+        .no-participation {
+            background: #fff3cd;
+            color: #856404;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">FullMoon</div>
+            <div class="nav-buttons">
+                <a href="{% url 'problems' %}" class="nav-btn">Problems</a>
+                <a href="{% url 'contests' %}" class="nav-btn">Contests</a>
+                <a href="{% url 'submissions' %}" class="nav-btn">Submissions</a>
+                <a href="{% url 'leaderboard' %}" class="nav-btn">Leaderboard</a>
+                <a href="{% url 'compiler' %}" class="nav-btn">Compiler</a>
+            </div>
+            <div class="auth-buttons">
+                {% if user.is_authenticated %}
+                    <div class="user-profile">
+                        <div class="user-info" onclick="toggleDropdown()">
+                            <span class="user-avatar">{{ user.username|slice:":1" }}</span>
+                        </div>
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <div class="dropdown-item">
+                                <strong>{{ user.username }}</strong>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'login' %}" class="auth-btn login-btn">Login</a>
+                    <a href="{% url 'register' %}" class="auth-btn signup-btn">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="contest-header">
+            <h1 class="contest-title">{{ contest.title }}</h1>
+            <p class="contest-description">{{ contest.description }}</p>
+            
+            <div class="contest-info">
+                <div class="info-item">
+                    <div class="info-label">Start Date</div>
+                    <div class="info-value">{{ contest.start_date|date:"M d, Y H:i" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">End Date</div>
+                    <div class="info-value">{{ contest.end_date|date:"M d, Y H:i" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Problems</div>
+                    <div class="info-value">{{ problems.count }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Duration</div>
+                    <div class="info-value">{{ contest.end_date|timeuntil:contest.start_date }}</div>
+                </div>
+            </div>
+            
+            {% if participation %}
+                <div class="participation-status">
+                    <strong>You are participating in this contest!</strong>
+                    <br>
+                    Score: {{ participation.score }} | Problems Solved: {{ participation.problems_solved.count }}
+                </div>
+                
+                {% if contest.is_running and participation.is_active %}
+                    <div class="timer-section">
+                        <div class="timer-title">Time Remaining</div>
+                        <div class="timer-display" id="timer">Loading...</div>
+                    </div>
+                    
+                    <button class="end-contest-btn" onclick="endContest()">End Contest</button>
+                {% endif %}
+            {% else %}
+                {% if contest.is_running %}
+                    <div class="no-participation">
+                        <strong>You are not participating in this contest.</strong>
+                        <br>
+                        <button class="nav-btn" onclick="startContest()">Start Contest</button>
+                    </div>
+                {% else %}
+                    <div class="no-participation">
+                        <strong>This contest has ended.</strong>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+        
+        <div class="problems-section">
+            <h2 class="section-title">Contest Problems</h2>
+            
+            <div class="problems-grid">
+                {% for problem in problems %}
+                <div class="problem-card {% if problem.is_solved %}solved{% endif %}">
+                    <div class="problem-header">
+                        <a href="{% url 'problem_detail' problem.id %}?contest={{ contest.id }}" class="problem-link">
+                            <div class="problem-title">{{ problem.title }}</div>
+                        </a>
+                        <div>
+                            <span class="difficulty-badge difficulty-{{ problem.difficulty|lower }}">
+                                {{ problem.difficulty }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="problem-status {% if problem.is_solved %}status-solved{% else %}status-unsolved{% endif %}">
+                        {% if problem.is_solved %}
+                            ✓ Solved
+                        {% else %}
+                            Unsolved
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="problem-card">
+                    <div class="problem-title">No problems available</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const contestId = {{ contest.id }};
+        let timerInterval;
+        
+        function toggleDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        function startContest() {
+            fetch(`/auth/contest/${contestId}/start/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Network error: ' + error);
+            });
+        }
+        
+        function endContest() {
+            if (confirm('Are you sure you want to end the contest? This action cannot be undone.')) {
+                fetch(`/auth/contest/${contestId}/end/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(`Contest ended! Final score: ${data.final_score}`);
+                        location.reload();
+                    } else {
+                        alert('Error ending contest');
+                    }
+                })
+                .catch(error => {
+                    alert('Network error: ' + error);
+                });
+            }
+        }
+        
+        function updateTimer() {
+            fetch(`/auth/contest/${contestId}/timer/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const timeRemaining = data.time_remaining;
+                    const timerElement = document.getElementById('timer');
+                    
+                    if (timeRemaining <= 0) {
+                        timerElement.textContent = '00:00:00';
+                        timerElement.classList.add('timer-warning');
+                        clearInterval(timerInterval);
+                        alert('Contest time is up!');
+                        location.reload();
+                    } else {
+                        const hours = Math.floor(timeRemaining / 3600);
+                        const minutes = Math.floor((timeRemaining % 3600) / 60);
+                        const seconds = timeRemaining % 60;
+                        
+                        const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                        timerElement.textContent = timeString;
+                        
+                        if (timeRemaining <= 300) { // 5 minutes warning
+                            timerElement.classList.add('timer-warning');
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error updating timer:', error);
+            });
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Start timer if user is participating
+        {% if participation and contest.is_running and participation.is_active %}
+            updateTimer();
+            timerInterval = setInterval(updateTimer, 1000);
+        {% endif %}
+        
+        document.addEventListener('click', function(event) {
+            const userProfile = document.querySelector('.user-profile');
+            const dropdown = document.getElementById('profileDropdown');
+            if (userProfile && !userProfile.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+        
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const dropdown = document.getElementById('profileDropdown');
+                dropdown.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html> 
