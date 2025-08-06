@@ -471,7 +471,7 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <div class="logo">FullMoon</div>
+            <div class="logo"><a href="{% url 'home' %}" style="color:inherit;text-decoration:none;">FullMoon</a></div>
             <div class="nav-buttons">
                 <a href="{% url 'problems' %}" class="nav-btn">Problems</a>
                 <a href="{% url 'contests' %}" class="nav-btn">Contests</a>
@@ -759,7 +759,7 @@ public class Main {
             resultBox.style.display = 'block';
             resultBox.innerText = 'Reviewing your code...';
 
-            fetch('/api/ai_review/', {
+            fetch('/auth/api/ai_review/', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({code, language})

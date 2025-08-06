@@ -13,6 +13,10 @@ from .compiler import CodeCompiler
 from .oj_system import OnlineJudge, TestCaseManager
 import json
 
+now = timezone.now()
+active_contests = Contest.objects.filter(start_date__lte=now, end_date__gte=now)
+active_contests_count = active_contests.count()
+
 def update_leaderboard_ranks():
     """Update ranks for all users based on their scores"""
     profiles = UserProfile.objects.all().order_by('-score')
@@ -78,7 +82,8 @@ def home(request):
         }
     
     context = {
-        'contests': contests,
+        'contests': active_contests,
+        'active_contests_count': active_contests_count,
         'concept_of_day': concept_of_day,
         'total_problems': Problem.objects.count(),
         'total_users': User.objects.count(),
