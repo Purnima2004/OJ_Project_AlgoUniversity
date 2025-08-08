@@ -19,7 +19,7 @@ from django.urls import path, include
 from auth_app.views import home, register_view
 
 urlpatterns = [
-    path('', register_view, name='register'),
+    path('', home, name='home'),
     path('home/', home, name='home'),
     path('admin/', admin.site.urls),
     path('api/', include('auth_app.api_urls')),

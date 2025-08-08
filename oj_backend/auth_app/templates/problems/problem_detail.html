@@ -546,6 +546,285 @@
             border-color: #2d5a2d; 
             color: #d4edda; 
         }
+        
+        /* AI Review Button Styles */
+        .ai-review-btn {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.2;
+        }
+        
+        .ai-review-btn:hover {
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .ai-review-btn:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+        
+        .ai-review-btn.loading {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        /* AI Review Modal Styles */
+        .ai-review-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .ai-review-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        .dark-mode .ai-review-content {
+            background-color: #222;
+            color: #eee;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .ai-review-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .ai-review-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .ai-review-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.3s ease;
+        }
+        
+        .ai-review-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .ai-review-body {
+            padding: 30px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .ai-review-loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .dark-mode .ai-review-loading {
+            color: #888;
+        }
+        
+        .ai-review-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        .ai-review-result {
+            line-height: 1.6;
+            font-size: 15px;
+        }
+        
+        .ai-review-result h3 {
+            color: #667eea;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+        
+        .dark-mode .ai-review-result h3 {
+            color: #8b9dc3;
+            border-bottom-color: #8b9dc3;
+        }
+        
+        .ai-review-result p {
+            margin-bottom: 15px;
+        }
+        
+        .ai-review-result strong {
+            color: #333;
+        }
+        
+        .dark-mode .ai-review-result strong {
+            color: #eee;
+        }
+        
+        .ai-review-error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .dark-mode .ai-review-error {
+            background: #552222;
+            color: #f8d7da;
+            border-left-color: #dc3545;
+        }
+        
+        /* Code Suggestion Styles */
+        .code-suggestion {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'Fira Mono', 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .dark-mode .code-suggestion {
+            background: #2d3748;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+        
+        .code-suggestion code {
+            background: none;
+            padding: 0;
+            border: none;
+            color: inherit;
+        }
+        
+        .ai-review-result strong {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .dark-mode .ai-review-result strong {
+            color: #8b9dc3;
+        }
+        
+        /* Code Suggestion Container Styles */
+        .code-suggestion-container {
+            margin: 1rem 0;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .dark-mode .code-suggestion-container {
+            border-color: #4a5568;
+        }
+        
+        .code-suggestion-header {
+            background: #f8f9fa;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .dark-mode .code-suggestion-header {
+            background: #2d3748;
+            border-bottom-color: #4a5568;
+        }
+        
+        .code-language {
+            font-weight: 500;
+            color: #667eea;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+        
+        .dark-mode .code-language {
+            color: #8b9dc3;
+        }
+        
+        .copy-code-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .copy-code-btn:hover {
+            background: #5a67d8;
+        }
+        
+        .copy-code-btn.copied {
+            background: #48bb78;
+        }
     </style>
 </head>
 <body>
@@ -621,7 +900,7 @@
                 <h3>Constraints</h3>
                 <div class="constraints-text">
                     {{ problem.constraints|linebreaks }}
-                </div>
+            </div>
             </div>
             {% endif %}
         </div>
@@ -635,7 +914,6 @@
                 <div>
                     <button class="run-btn" onclick="runTestCases()">Run</button>
                     <button class="submit-btn" id="submit-btn" onclick="submitSolution()">Submit</button>
-                    <button id="ai-review-btn" class="run-btn" style="margin-left: 10px;">AI Review</button>
                 </div>
             </div>
             <textarea class="code-editor" id="code-editor" placeholder="# Write your code here..."></textarea>
@@ -672,7 +950,27 @@
                 </div>
             </div>
             
-            <div id="ai-review-result" style="display:none; margin-top: 1rem; border: 1px solid #a3a2bb; background: #f8f8fa; color: #222; padding: 1rem; border-radius: 8px;"></div>
+            <!-- AI Review Button -->
+            <button id="ai-review-btn" class="ai-review-btn" title="Get AI Review of your code">
+                AI<br>Review
+            </button>
+            
+            <!-- AI Review Modal -->
+            <div id="ai-review-modal" class="ai-review-modal">
+                <div class="ai-review-content">
+                    <div class="ai-review-header">
+                        <h2>🤖 AI Code Review</h2>
+                        <button class="ai-review-close" onclick="closeAIReview()">&times;</button>
+                    </div>
+                    <div class="ai-review-body" id="ai-review-body">
+                        <div class="ai-review-loading" id="ai-review-loading">
+                            <div class="ai-review-spinner"></div>
+                            <p>Analyzing your code...</p>
+                        </div>
+                        <div class="ai-review-result" id="ai-review-result" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
             
             <div class="test-cases">
                 <h3>Sample Test Cases</h3>
@@ -720,8 +1018,12 @@
         });
 
         function runTestCases() {
+            console.log('runTestCases function called');
             const code = document.getElementById('code-editor').value;
             const language = document.getElementById('language-select').value;
+            
+            console.log('Code:', code);
+            console.log('Language:', language);
             
             if (!code.trim()) {
                 alert('Please write some code first!');
@@ -734,13 +1036,19 @@
             const resultsContent = document.getElementById('results-content');
             const testCaseTabs = document.getElementById('test-case-tabs');
             const testCaseContent = document.getElementById('test-case-content');
+            
+            console.log('Showing results section');
             resultsSection.style.display = 'block';
             loading.style.display = 'block';
             resultsContent.style.display = 'none';
             testCaseTabs.style.display = 'none';
             testCaseContent.style.display = 'none';
+            
             // Send AJAX request for run mode
-            fetch(`/auth/problem/{{ problem.id }}/submit/`, {
+            const url = `/auth/problem/{{ problem.id }}/submit/`;
+            console.log('Sending request to:', url);
+            
+            fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -752,8 +1060,12 @@
                     mode: 'run'
                 })
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response received:', response);
+                return response.json();
+            })
             .then(data => {
+                console.log('Data received:', data);
                 loading.style.display = 'none';
                 resultsContent.style.display = 'block';
                 if (data.success) {
@@ -764,6 +1076,7 @@
                 }
             })
             .catch(error => {
+                console.error('Error:', error);
                 loading.style.display = 'none';
                 resultsContent.style.display = 'block';
                 displayError('Network error: ' + error);
@@ -891,7 +1204,7 @@
             // Show error if any
             if (data.error_message) {
                 errorMessage.style.display = 'block';
-                errorMessage.textContent = data.error_message;
+                errorMessage.innerHTML = data.error_message.replace(/\n/g, '<br>');
             }
             
             // Show test case tabs and content with full LeetCode-style interface
@@ -1019,7 +1332,7 @@
             resultStatus.textContent = 'Runtime Error';
             
             errorMessage.style.display = 'block';
-            errorMessage.textContent = error;
+            errorMessage.innerHTML = error.replace(/\n/g, '<br>');
         }
 
         function getStatusText(status) {
@@ -1072,28 +1385,194 @@
             localStorage.removeItem(`code_editor_content_${problemId}`);
         }
 
+        // Code templates for different languages
+        const codeTemplates = {
+            python: `# Python code
+# Write your code here
+
+def solve():
+    # Your solution goes here
+    pass
+
+# Example usage
+if __name__ == "__main__":
+    solve()`,
+            
+            cpp: `#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+// Write your code here
+
+int main() {
+    // Your solution goes here
+    
+    return 0;
+}`,
+            
+            java: `import java.util.*;
+
+public class Main {
+    // Write your code here
+    
+    public static void main(String[] args) {
+        // Your solution goes here
+        
+    }
+}`
+        };
+        
+        // Language switching functionality
+        const languageSelect = document.getElementById('language-select');
+        const codeEditor = document.getElementById('code-editor');
+        
+        // Language change handler
+        languageSelect.addEventListener('change', function() {
+            const selectedLanguage = this.value;
+            codeEditor.value = codeTemplates[selectedLanguage];
+        });
+
+        // AI Review Functionality
         const AI_REVIEW_URL = '/auth/api/ai_review/';
+        
+        function openAIReview() {
+            console.log('openAIReview function called');
+            const code = document.getElementById('code-editor').value;
+            const language = document.getElementById('language-select').value;
+            
+            console.log('Code:', code);
+            console.log('Language:', language);
+            
+            if (!code.trim()) {
+                alert('Please write some code first!');
+                return;
+            }
+            
+            // Show modal and loading state
+            const modal = document.getElementById('ai-review-modal');
+            const loading = document.getElementById('ai-review-loading');
+            const result = document.getElementById('ai-review-result');
+            const aiReviewBtn = document.getElementById('ai-review-btn');
+            
+            modal.style.display = 'block';
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            aiReviewBtn.classList.add('loading');
+            aiReviewBtn.textContent = 'Analyzing...';
+            
+            // Send request to AI review endpoint
+            fetch(AI_REVIEW_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    code: code,
+                    language: language,
+                    problem_id: {{ problem.id }}
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                result.style.display = 'block';
+                
+                if (data.success && data.review) {
+                    // Format the review text with proper HTML and code highlighting
+                    let formattedReview = data.review
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/```(\w+)?\n([\s\S]*?)```/g, function(match, lang, code) {
+                            const language = lang || 'text';
+                            const codeContent = code.trim();
+                            return `<div class="code-suggestion-container">
+                                <div class="code-suggestion-header">
+                                    <span class="code-language">${language}</span>
+                                    <button class="copy-code-btn" onclick="copyCodeToClipboard(this)" title="Copy code">
+                                        📋 Copy
+                                    </button>
+                                </div>
+                                <pre class="code-suggestion"><code class="language-${language}">${codeContent}</code></pre>
+                            </div>`;
+                        })
+                        .replace(/\n\n/g, '</p><p>')
+                        .replace(/\n/g, '<br>');
+                    
+                    result.innerHTML = `
+                        <div class="ai-review-result">
+                            <p>${formattedReview}</p>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <div class="ai-review-error">
+                            <strong>Error:</strong> ${data.error || 'Unable to generate review at this time.'}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                result.style.display = 'block';
+                result.innerHTML = `
+                    <div class="ai-review-error">
+                        <strong>Network Error:</strong> ${error.message || 'Failed to connect to AI service.'}
+                    </div>
+                `;
+            })
+            .finally(() => {
+                // Reset button state
+                aiReviewBtn.classList.remove('loading');
+                aiReviewBtn.innerHTML = 'AI<br>Review';
+            });
+        }
+        
+        function closeAIReview() {
+            const modal = document.getElementById('ai-review-modal');
+            modal.style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('ai-review-modal');
+            if (event.target === modal) {
+                closeAIReview();
+            }
+        }
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeAIReview();
+            }
+        });
+        
+        // Initialize AI Review button
         if (document.getElementById('ai-review-btn')) {
-            document.getElementById('ai-review-btn').onclick = function() {
-                const code = document.getElementById('code-editor').value;
-                const language = document.getElementById('language-select') ? document.getElementById('language-select').value : 'python';
-                const resultBox = document.getElementById('ai-review-result');
-                resultBox.style.display = 'block';
-                resultBox.innerText = 'Reviewing your code...';
-                fetch(AI_REVIEW_URL, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({code, language})
-                })
-                .then(response => response.json())
-                .then(data => {
-                    resultBox.innerText = data.review || data.error || 'No response from AI.';
-                })
-                .catch(err => {
-                    resultBox.innerText = 'AI Review failed: ' + err;
-                });
-            };
+            document.getElementById('ai-review-btn').onclick = openAIReview;
+        }
+        
+        // Function to copy code to clipboard
+        function copyCodeToClipboard(button) {
+            const codeBlock = button.closest('.code-suggestion-container').querySelector('code');
+            const codeText = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(codeText).then(function() {
+                // Visual feedback
+                const originalText = button.textContent;
+                button.textContent = '✅ Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(function() {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy code to clipboard');
+            });
         }
     </script>
 </body>
-</html>
+</html> 

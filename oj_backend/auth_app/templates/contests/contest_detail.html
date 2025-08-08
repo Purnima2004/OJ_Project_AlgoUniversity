@@ -444,6 +444,8 @@
                     <strong>You are participating in this contest!</strong>
                     <br>
                     Score: {{ participation.score }} | Problems Solved: {{ participation.problems_solved.count }}
+                    <br>
+                    <small>Click on any problem below to continue solving!</small>
                 </div>
                 
                 {% if contest.is_running and participation.is_active %}

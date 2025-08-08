@@ -466,6 +466,238 @@
                 height: 300px;
             }
         }
+        
+        /* AI Review Button Styles */
+        .ai-review-btn {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.2;
+        }
+        
+        .ai-review-btn:hover {
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .ai-review-btn:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+        
+        .ai-review-btn.loading {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        /* AI Review Modal Styles */
+        .ai-review-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .ai-review-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .ai-review-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .ai-review-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .ai-review-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.3s ease;
+        }
+        
+        .ai-review-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .ai-review-body {
+            padding: 30px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .ai-review-loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .ai-review-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        .ai-review-result {
+            line-height: 1.6;
+            font-size: 15px;
+        }
+        
+        .ai-review-result h3 {
+            color: #667eea;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+        
+        .ai-review-result p {
+            margin-bottom: 15px;
+        }
+        
+        .ai-review-result strong {
+            color: #333;
+        }
+        
+        .ai-review-error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
+        }
+        
+        /* Code Suggestion Styles */
+        .code-suggestion {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'Fira Mono', 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .code-suggestion code {
+            background: none;
+            padding: 0;
+            border: none;
+            color: inherit;
+        }
+        
+        .ai-review-result strong {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        /* Code Suggestion Container Styles */
+        .code-suggestion-container {
+            margin: 1rem 0;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .code-suggestion-header {
+            background: #f8f9fa;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .code-language {
+            font-weight: 500;
+            color: #667eea;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+        
+        .copy-code-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .copy-code-btn:hover {
+            background: #5a67d8;
+        }
+        
+        .copy-code-btn.copied {
+            background: #48bb78;
+        }
     </style>
 </head>
 <body>
@@ -528,13 +760,32 @@
                 </div>
                 
                 <button id="run-btn" class="run-btn">▶ Run Code</button>
-                <button id="ai-review-btn" class="run-btn" style="margin-left: 10px;">AI Review</button>
                 
                 <div id="loading" class="loading">
                     <div class="spinner"></div>
                     <p>Compiling and running your code...</p>
                 </div>
-                <div id="ai-review-result" style="display:none; margin-top: 1rem; border: 1px solid #a3a2bb; background: #f8f8fa; color: #222; padding: 1rem; border-radius: 8px;"></div>
+                <!-- AI Review Button -->
+                <button id="ai-review-btn" class="ai-review-btn" title="Get AI Review of your code">
+                    AI<br>Review
+                </button>
+                
+                <!-- AI Review Modal -->
+                <div id="ai-review-modal" class="ai-review-modal">
+                    <div class="ai-review-content">
+                        <div class="ai-review-header">
+                            <h2>🤖 AI Code Review</h2>
+                            <button class="ai-review-close" onclick="closeAIReview()">&times;</button>
+                        </div>
+                        <div class="ai-review-body" id="ai-review-body">
+                            <div class="ai-review-loading" id="ai-review-loading">
+                                <div class="ai-review-spinner"></div>
+                                <p>Analyzing your code...</p>
+                            </div>
+                            <div class="ai-review-result" id="ai-review-result" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <div class="output-section">
@@ -583,26 +834,41 @@
         
         let currentLanguage = 'python';
         
-        // Sample code templates
-        const codeTemplates = {
-            python: `# Python code
+        // Initialize code editor with Python template
+        codeEditor.value = `# Python code
+# Write your code here
+
 print("Hello, World!")
 
-# Get input
-name = input("Enter your name: ")
-print(f"Hello, {name}!")`,
+# Example: Get user input
+# name = input("Enter your name: ")
+# print(f"Hello, {name}!")`;
+        
+        // Sample code templates with proper boilerplate
+        const codeTemplates = {
+            python: `# Python code
+# Write your code here
+
+print("Hello, World!")
+
+# Example: Get user input
+# name = input("Enter your name: ")
+# print(f"Hello, {name}!")`,
             
             cpp: `#include <iostream>
 #include <string>
 using namespace std;
 
 int main() {
+    // Write your code here
+    
     cout << "Hello, World!" << endl;
     
-    string name;
-    cout << "Enter your name: ";
-    getline(cin, name);
-    cout << "Hello, " << name << "!" << endl;
+    // Example: Get user input
+    // string name;
+    // cout << "Enter your name: ";
+    // getline(cin, name);
+    // cout << "Hello, " << name << "!" << endl;
     
     return 0;
 }`,
@@ -611,14 +877,16 @@ int main() {
 
 public class Main {
     public static void main(String[] args) {
+        // Write your code here
+        
         System.out.println("Hello, World!");
         
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter your name: ");
-        String name = scanner.nextLine();
-        System.out.println("Hello, " + name + "!");
-        
-        scanner.close();
+        // Example: Get user input
+        // Scanner scanner = new Scanner(System.in);
+        // System.out.print("Enter your name: ");
+        // String name = scanner.nextLine();
+        // System.out.println("Hello, " + name + "!");
+        // scanner.close();
     }
 }`
         };
@@ -672,7 +940,11 @@ public class Main {
                 
                 const result = await response.json();
                 
+                console.log('Compiler response:', result);
+                
+                // Handle both success and error cases
                 if (result.success) {
+                    // Successful execution
                     if (result.output) {
                         outputDisplay.textContent = result.output;
                         outputDisplay.className = 'output-display output-success';
@@ -686,9 +958,18 @@ public class Main {
                     execStatus.textContent = result.status;
                     executionInfo.style.display = 'flex';
                 } else {
-                    outputDisplay.textContent = result.error || 'An error occurred';
+                    // Error case - display error message
+                    const errorMessage = result.error || 'An error occurred';
+                    outputDisplay.innerHTML = errorMessage.replace(/\n/g, '<br>');
                     outputDisplay.className = 'output-display output-error';
                     executionInfo.style.display = 'none';
+                    
+                    // Also show execution info for errors if available
+                    if (result.execution_time !== undefined) {
+                        execTime.textContent = result.execution_time;
+                        execStatus.textContent = result.status || 'Error';
+                        executionInfo.style.display = 'flex';
+                    }
                 }
                 
             } catch (error) {
@@ -750,28 +1031,141 @@ public class Main {
             }
         });
         
-        // AI Review button click handler
-        document.getElementById('ai-review-btn').onclick = function() {
-            const code = document.getElementById('code-editor').value; // Adjust ID if different
-            const language = document.getElementById('language-select') ? document.getElementById('language-select').value : 'python';
-
-            const resultBox = document.getElementById('ai-review-result');
-            resultBox.style.display = 'block';
-            resultBox.innerText = 'Reviewing your code...';
-
-            fetch('/auth/api/ai_review/', {
+        // AI Review Functionality
+        const AI_REVIEW_URL = '/auth/api/ai_review/';
+        
+        function openAIReview() {
+            const code = document.getElementById('code-editor').value;
+            const language = currentLanguage; // Use the current language from the language selector
+            
+            if (!code.trim()) {
+                alert('Please write some code first!');
+                return;
+            }
+            
+            // Show modal and loading state
+            const modal = document.getElementById('ai-review-modal');
+            const loading = document.getElementById('ai-review-loading');
+            const result = document.getElementById('ai-review-result');
+            const aiReviewBtn = document.getElementById('ai-review-btn');
+            
+            modal.style.display = 'block';
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            aiReviewBtn.classList.add('loading');
+            aiReviewBtn.textContent = 'Analyzing...';
+            
+            // Send request to AI review endpoint
+            fetch(AI_REVIEW_URL, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({code, language})
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    code: code,
+                    language: language
+                })
             })
             .then(response => response.json())
             .then(data => {
-                resultBox.innerText = data.review || data.error || 'No response from AI.';
+                loading.style.display = 'none';
+                result.style.display = 'block';
+                
+                if (data.success && data.review) {
+                    // Format the review text with proper HTML and code highlighting
+                    let formattedReview = data.review
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/```(\w+)?\n([\s\S]*?)```/g, function(match, lang, code) {
+                            const language = lang || 'text';
+                            const codeContent = code.trim();
+                            return `<div class="code-suggestion-container">
+                                <div class="code-suggestion-header">
+                                    <span class="code-language">${language}</span>
+                                    <button class="copy-code-btn" onclick="copyCodeToClipboard(this)" title="Copy code">
+                                        📋 Copy
+                                    </button>
+                                </div>
+                                <pre class="code-suggestion"><code class="language-${language}">${codeContent}</code></pre>
+                            </div>`;
+                        })
+                        .replace(/\n\n/g, '</p><p>')
+                        .replace(/\n/g, '<br>');
+                    
+                    result.innerHTML = `
+                        <div class="ai-review-result">
+                            <p>${formattedReview}</p>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <div class="ai-review-error">
+                            <strong>Error:</strong> ${data.error || 'Unable to generate review at this time.'}
+                        </div>
+                    `;
+                }
             })
-            .catch(err => {
-                resultBox.innerText = 'AI Review failed: ' + err;
+            .catch(error => {
+                loading.style.display = 'none';
+                result.style.display = 'block';
+                result.innerHTML = `
+                    <div class="ai-review-error">
+                        <strong>Network Error:</strong> ${error.message || 'Failed to connect to AI service.'}
+                    </div>
+                `;
+            })
+            .finally(() => {
+                // Reset button state
+                aiReviewBtn.classList.remove('loading');
+                aiReviewBtn.innerHTML = 'AI<br>Review';
             });
-        };
+        }
+        
+        function closeAIReview() {
+            const modal = document.getElementById('ai-review-modal');
+            modal.style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('ai-review-modal');
+            if (event.target === modal) {
+                closeAIReview();
+            }
+        }
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeAIReview();
+            }
+        });
+        
+        // Function to copy code to clipboard
+        function copyCodeToClipboard(button) {
+            const codeBlock = button.closest('.code-suggestion-container').querySelector('code');
+            const codeText = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(codeText).then(function() {
+                // Visual feedback
+                const originalText = button.textContent;
+                button.textContent = '✅ Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(function() {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy code to clipboard');
+            });
+        }
+        
+        // Initialize AI Review button
+        if (document.getElementById('ai-review-btn')) {
+            document.getElementById('ai-review-btn').onclick = openAIReview;
+        }
     </script>
 </body>
 </html>

@@ -230,12 +230,23 @@ class CodeCompiler:
             
             print(f"DEBUG: Run result: {run_result}")
             
-            return {
-                'output': run_result['output'],
-                'error': run_result['error'],
-                'execution_time': round(execution_time, 3),
-                'status': 'success' if run_result['returncode'] == 0 else 'error'
-            }
+            # Enhanced error handling for C++
+            if run_result['returncode'] == 0:
+                return {
+                    'output': run_result['output'],
+                    'error': run_result['error'],
+                    'execution_time': round(execution_time, 3),
+                    'status': 'success'
+                }
+            else:
+                # Map return codes to specific error messages
+                error_message = self._get_cpp_error_message(run_result['returncode'], run_result['error'])
+                return {
+                    'output': '',
+                    'error': error_message,
+                    'execution_time': round(execution_time, 3),
+                    'status': 'runtime_error'
+                }
         except Exception as e:
             print(f"DEBUG: C++ execution error: {str(e)}")
             return {
@@ -305,12 +316,23 @@ class CodeCompiler:
                 run_result = self._secure_run(run_cmd, input_data)
                 execution_time = time.time() - start_time
                 
-                return {
-                    'output': run_result['output'],
-                    'error': run_result['error'],
-                    'execution_time': round(execution_time, 3),
-                    'status': 'success' if run_result['returncode'] == 0 else 'error'
-                }
+                # Enhanced error handling for Java
+                if run_result['returncode'] == 0:
+                    return {
+                        'output': run_result['output'],
+                        'error': run_result['error'],
+                        'execution_time': round(execution_time, 3),
+                        'status': 'success'
+                    }
+                else:
+                    # Map return codes to specific error messages
+                    error_message = self._get_java_error_message(run_result['returncode'], run_result['error'])
+                    return {
+                        'output': '',
+                        'error': error_message,
+                        'execution_time': round(execution_time, 3),
+                        'status': 'runtime_error'
+                    }
             except Exception as e:
                 # Try next command
                 continue
@@ -343,13 +365,23 @@ class CodeCompiler:
                 result = self._secure_run(run_cmd, input_data)
                 execution_time = time.time() - start_time
                 
-                # If we get here, the command worked
-                return {
-                    'output': result['output'],
-                    'error': result['error'],
-                    'execution_time': round(execution_time, 3),
-                    'status': 'success' if result['returncode'] == 0 else 'error'
-                }
+                # Enhanced error handling for Python
+                if result['returncode'] == 0:
+                    return {
+                        'output': result['output'],
+                        'error': result['error'],
+                        'execution_time': round(execution_time, 3),
+                        'status': 'success'
+                    }
+                else:
+                    # Map Python errors to specific error messages
+                    error_message = self._get_python_error_message(result['error'])
+                    return {
+                        'output': '',
+                        'error': error_message,
+                        'execution_time': round(execution_time, 3),
+                        'status': 'runtime_error'
+                    }
             except Exception as e:
                 # If this command fails, try the next one
                 continue
@@ -361,6 +393,63 @@ class CodeCompiler:
             'execution_time': 0,
             'status': 'error'
         }
+
+    def _get_cpp_error_message(self, returncode: int, stderr: str) -> str:
+        """Map C++ return codes to user-friendly error messages"""
+        error_messages = {
+            3221225477: "Runtime Error: Memory Access Violation (Segmentation Fault)\n\nThis usually means:\n• Array/vector index out of bounds\n• Accessing null pointer\n• Stack overflow\n• Memory corruption\n\nCheck your code for:\n• Valid array indices\n• Proper pointer initialization\n• Recursion depth limits",
+            3221225725: "Runtime Error: Stack Overflow\n\nThis usually means:\n• Infinite recursion\n• Too many local variables\n• Deep function calls\n\nCheck your code for:\n• Recursion base cases\n• Function call depth",
+            3221225620: "Runtime Error: Division by Zero\n\nCheck your code for:\n• Division operations\n• Modulo operations\n• Input validation",
+            3221225478: "Runtime Error: Invalid Instruction\n\nThis usually means:\n• Corrupted executable\n• Incompatible binary\n\nTry recompiling your code.",
+            3221225786: "Runtime Error: Access Violation\n\nThis usually means:\n• Invalid memory access\n• Buffer overflow\n• Uninitialized variables\n\nCheck your code for:\n• Array bounds\n• Variable initialization\n• Memory allocation",
+        }
+        
+        # Check for specific error patterns in stderr
+        if "terminate called after throwing an instance of" in stderr:
+            return f"Runtime Error: Exception Thrown\n\n{stderr}"
+        elif "Aborted" in stderr:
+            return f"Runtime Error: Program Aborted\n\n{stderr}"
+        elif "Segmentation fault" in stderr:
+            return "Runtime Error: Segmentation Fault\n\nThis usually means:\n• Array/vector index out of bounds\n• Accessing null pointer\n• Memory corruption"
+        
+        # Return specific error message if available, otherwise generic
+        return error_messages.get(returncode, f"Runtime Error (Exit Code: {returncode})\n\n{stderr}")
+
+    def _get_java_error_message(self, returncode: int, stderr: str) -> str:
+        """Map Java return codes to user-friendly error messages"""
+        if "OutOfMemoryError" in stderr:
+            return "Runtime Error: Out of Memory\n\nThis usually means:\n• Infinite loops\n• Large data structures\n• Memory leaks\n\nCheck your code for:\n• Loop termination conditions\n• Memory usage patterns"
+        elif "ArrayIndexOutOfBoundsException" in stderr:
+            return "Runtime Error: Array Index Out of Bounds\n\nThis usually means:\n• Accessing array with invalid index\n• Negative array index\n• Index >= array length\n\nCheck your code for:\n• Array bounds validation\n• Loop conditions"
+        elif "NullPointerException" in stderr:
+            return "Runtime Error: Null Pointer Exception\n\nThis usually means:\n• Accessing null object\n• Uninitialized object\n\nCheck your code for:\n• Object initialization\n• Null checks"
+        elif "StackOverflowError" in stderr:
+            return "Runtime Error: Stack Overflow\n\nThis usually means:\n• Infinite recursion\n• Deep function calls\n\nCheck your code for:\n• Recursion base cases\n• Function call depth"
+        elif "NumberFormatException" in stderr:
+            return "Runtime Error: Number Format Exception\n\nThis usually means:\n• Invalid number parsing\n• Non-numeric input\n\nCheck your code for:\n• Input validation\n• Number parsing"
+        else:
+            return f"Runtime Error (Exit Code: {returncode})\n\n{stderr}"
+
+    def _get_python_error_message(self, stderr: str) -> str:
+        """Map Python errors to user-friendly error messages"""
+        if "IndexError" in stderr:
+            return "Runtime Error: Index Error\n\nThis usually means:\n• List/array index out of bounds\n• Negative index\n• Empty list access\n\nCheck your code for:\n• List bounds validation\n• List length checks"
+        elif "KeyError" in stderr:
+            return "Runtime Error: Key Error\n\nThis usually means:\n• Dictionary key not found\n• Invalid dictionary access\n\nCheck your code for:\n• Dictionary key existence\n• Key validation"
+        elif "ZeroDivisionError" in stderr:
+            return "Runtime Error: Division by Zero\n\nCheck your code for:\n• Division operations\n• Input validation"
+        elif "NameError" in stderr:
+            return "Runtime Error: Name Error\n\nThis usually means:\n• Undefined variable\n• Typo in variable name\n\nCheck your code for:\n• Variable declaration\n• Variable name spelling"
+        elif "TypeError" in stderr:
+            return "Runtime Error: Type Error\n\nThis usually means:\n• Wrong data type operation\n• Invalid function arguments\n\nCheck your code for:\n• Data type compatibility\n• Function parameter types"
+        elif "ValueError" in stderr:
+            return "Runtime Error: Value Error\n\nThis usually means:\n• Invalid value for operation\n• Wrong input format\n\nCheck your code for:\n• Input validation\n• Value ranges"
+        elif "MemoryError" in stderr:
+            return "Runtime Error: Memory Error\n\nThis usually means:\n• Out of memory\n• Large data structures\n\nCheck your code for:\n• Memory usage\n• Data structure size"
+        elif "RecursionError" in stderr:
+            return "Runtime Error: Recursion Error\n\nThis usually means:\n• Maximum recursion depth exceeded\n• Infinite recursion\n\nCheck your code for:\n• Recursion base cases\n• Recursion depth limits"
+        else:
+            return f"Runtime Error:\n\n{stderr}"
 
     def cleanup(self):
         """Clean up temporary files"""

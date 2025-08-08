@@ -108,11 +108,21 @@ class OnlineJudge:
             print(f"DEBUG: Compiler result: {result}")
             
             # Check if compilation failed
-            if result['status'] == 'error' or result['status'] == 'compilation_error':
+            if result['status'] == 'compilation_error':
                 return {
                     'status': 'CE',
                     'execution_time': 0,
                     'memory_used': 0,
+                    'actual_output': '',
+                    'error_message': result['error']
+                }
+            
+            # Check if runtime error occurred
+            if result['status'] == 'runtime_error':
+                return {
+                    'status': 'RE',
+                    'execution_time': result['execution_time'],
+                    'memory_used': result.get('memory_used', 0),
                     'actual_output': '',
                     'error_message': result['error']
                 }

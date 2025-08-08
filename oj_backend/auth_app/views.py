@@ -11,11 +11,29 @@ from .models import Problem, Contest, UserProfile, Submission, ConceptOfDay, Cod
 from .forms import CodeSubmissionForm, ProblemSubmissionForm, ContestForm, ProblemForm, TestCaseForm
 from .compiler import CodeCompiler
 from .oj_system import OnlineJudge, TestCaseManager
+from .decorators import redirect_if_authenticated
 import json
+import os
+import subprocess
+import tempfile
+import uuid
+import time
+import psutil
+from pathlib import Path
+import google.generativeai as genai
 
-now = timezone.now()
-active_contests = Contest.objects.filter(start_date__lte=now, end_date__gte=now)
-active_contests_count = active_contests.count()
+# Configure Gemini API
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY', 'your-api-key-here')  # Set your API key in environment variables
+
+# Debug: Print API key status (remove in production)
+if GOOGLE_API_KEY == 'your-api-key-here':
+    print("⚠️  WARNING: Using default API key. Please set GOOGLE_API_KEY environment variable.")
+else:
+    print(f"✅ API Key loaded: {GOOGLE_API_KEY[:10]}...")
+
+genai.configure(api_key=GOOGLE_API_KEY)
+
+
 
 def update_leaderboard_ranks():
     """Update ranks for all users based on their scores"""
@@ -32,6 +50,7 @@ def ensure_user_profile(user):
     )
     return user_profile
 
+@redirect_if_authenticated
 def register_view(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -48,6 +67,7 @@ def register_view(request):
             })
     return render(request, 'register/register.html')
 
+@redirect_if_authenticated
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -68,10 +88,25 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    return redirect('login')
+    return redirect('home')
 
 def home(request):
-    contests = Contest.objects.all()[:3]
+    # If user is not authenticated, show landing page
+    if not request.user.is_authenticated:
+        return render(request, 'landing/landing.html')
+    
+    # If user is authenticated, show dashboard
+    now = timezone.now()
+    active_contests = Contest.objects.filter(
+        is_active=True,
+        start_date__lte=now,
+        end_date__gte=now
+    )[:3]
+    active_contests_count = Contest.objects.filter(
+        is_active=True,
+        start_date__lte=now,
+        end_date__gte=now
+    ).count()
     concept_of_day = ConceptOfDay.objects.first()
     
     if not concept_of_day:
@@ -92,7 +127,8 @@ def home(request):
     return render(request, 'home/home.html', context)
 
 def problems_view(request):
-    problems = Problem.objects.all()
+    # Exclude contest problems (those with "Contest" in title)
+    problems = Problem.objects.exclude(title__icontains='Contest')
     
     # Get user's solved problems if authenticated
     solved_problems = set()
@@ -137,7 +173,7 @@ def leaderboard_view(request):
     # Get all user profiles ordered by score (highest first)
     user_profiles = UserProfile.objects.all().order_by('-score', 'user__username')
     
-    # Update ranks if needed
+    
     for rank, profile in enumerate(user_profiles, 1):
         if profile.rank != rank:
             profile.rank = rank
@@ -187,7 +223,12 @@ def problem_detail(request, problem_id):
         'test_cases': test_cases,
         'contest': contest
     }
-    return render(request, 'problems/problem_detail.html', context)
+    
+    # Use contest template if accessed from contest
+    if contest:
+        return render(request, 'contests/contest_problem_detail.html', context)
+    else:
+        return render(request, 'problems/problem_detail.html', context)
 
 @csrf_exempt  # Allow AJAX from unauthenticated users for run mode
 @login_required
@@ -320,10 +361,11 @@ def contest_detail(request, contest_id):
     contest = get_object_or_404(Contest, id=contest_id)
     problems = contest.problems.all()
     
-    # Get user's participation
+    # Get user's ACTIVE participation only
     participation = ContestParticipation.objects.filter(
         user=request.user,
-        contest=contest
+        contest=contest,
+        is_active=True
     ).first()
     
     # Get user's solved problems in this contest
@@ -497,8 +539,11 @@ def run_code(request):
         # Clean up
         compiler.cleanup()
         
+        # Check if the compilation/execution was successful
+        is_success = result.get('status') in ['success']
+        
         return JsonResponse({
-            'success': True,
+            'success': is_success,
             'submission_id': submission.unique_id,
             'output': result.get('output', ''),
             'error': result.get('error', ''),
@@ -542,25 +587,40 @@ def start_contest(request, contest_id):
             'error': 'Contest is not currently running'
         })
     
-    # Check if user is already participating
-    participation, created = ContestParticipation.objects.get_or_create(
+    # Check if user already has an active participation
+    existing_participation = ContestParticipation.objects.filter(
         user=request.user,
         contest=contest,
-        defaults={'is_active': True}
-    )
+        is_active=True
+    ).first()
     
-    if not created and participation.is_active:
+    if existing_participation:
         return JsonResponse({
             'success': False,
             'error': 'You are already participating in this contest'
         })
     
-    # Reactivate participation if it was inactive
-    if not participation.is_active:
-        participation.is_active = True
-        participation.start_time = timezone.now()
-        participation.end_time = None
-        participation.save()
+    # Check if user has an inactive participation and reactivate it
+    inactive_participation = ContestParticipation.objects.filter(
+        user=request.user,
+        contest=contest,
+        is_active=False
+    ).first()
+    
+    if inactive_participation:
+        # Reactivate the participation
+        inactive_participation.is_active = True
+        inactive_participation.start_time = timezone.now()
+        inactive_participation.end_time = None
+        inactive_participation.save()
+        participation = inactive_participation
+    else:
+        # Create new participation
+        participation = ContestParticipation.objects.create(
+            user=request.user,
+            contest=contest,
+            is_active=True
+        )
     
     return JsonResponse({
         'success': True,
@@ -572,16 +632,23 @@ def start_contest(request, contest_id):
 @login_required
 def get_contest_timer(request, contest_id):
     """Get remaining time for contest participation"""
-    participation = get_object_or_404(ContestParticipation, 
-                                    user=request.user, 
-                                    contest_id=contest_id,
-                                    is_active=True)
-    
-    return JsonResponse({
-        'success': True,
-        'time_remaining': participation.time_remaining,
-        'elapsed_time': participation.elapsed_time
-    })
+    try:
+        participation = ContestParticipation.objects.get(
+            user=request.user, 
+            contest_id=contest_id,
+            is_active=True
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'time_remaining': participation.time_remaining,
+            'elapsed_time': participation.elapsed_time
+        })
+    except ContestParticipation.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'User has not started this contest'
+        })
 
 @login_required
 def end_contest(request, contest_id):
@@ -599,4 +666,97 @@ def end_contest(request, contest_id):
         'success': True,
         'final_score': participation.score
     })
+
+@csrf_exempt
+@login_required
+def ai_review(request):
+    """AI Review endpoint for code analysis using Gemini"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            code = data.get('code', '')
+            language = data.get('language', 'python')
+            problem_id = data.get('problem_id')
+            
+            if not code.strip():
+                return JsonResponse({'error': 'No code provided'}, status=400)
+            
+            # Get problem details if available
+            problem_context = ""
+            if problem_id:
+                try:
+                    problem = Problem.objects.get(id=problem_id)
+                    problem_context = f"""
+                    Problem: {problem.title}
+                    Description: {problem.description}
+                    Difficulty: {problem.difficulty}
+                    """
+                except Problem.DoesNotExist:
+                    pass
+            
+            # Create a structured prompt for Gemini
+            prompt = f"""
+            You are an expert programming mentor and code reviewer. Analyze the following {language} code and provide a comprehensive, structured review with specific code suggestions.
+            
+            {problem_context}
+            
+            Code to review:
+            ```{language}
+            {code}
+            ```
+            
+            Please provide a structured review covering:
+            
+            1. **Code Quality Assessment** (1-2 sentences)
+            2. **Algorithm Analysis** (1-2 sentences)
+            3. **Time & Space Complexity** (if applicable)
+            4. **Potential Issues** (if any)
+            5. **Code Improvement Suggestions** (Provide specific code snippets with improvements)
+            6. **Overall Rating** (Good/Fair/Needs Improvement)
+            
+            For the "Code Improvement Suggestions" section:
+            - If the code is already well-written, acknowledge that
+            - If there are improvements needed, provide specific code snippets showing the suggested changes
+            - Use markdown code blocks with the language specified
+            - Explain why each suggestion improves the code
+            - Focus on readability, efficiency, and best practices
+            
+            Keep each section concise and actionable. Format your response with bold headers and clear code examples.
+            """
+            
+            # Generate response using Gemini
+            try:
+                # Try the newer model name first
+                model = genai.GenerativeModel('gemini-1.5-pro')
+                response = model.generate_content(prompt)
+            except Exception as e:
+                # Fallback to older model name
+                try:
+                    model = genai.GenerativeModel('gemini-pro')
+                    response = model.generate_content(prompt)
+                except Exception as e2:
+                    # If both fail, try the latest model
+                    model = genai.GenerativeModel('gemini-1.5-flash')
+                    response = model.generate_content(prompt)
+            
+            # Extract the response text
+            if hasattr(response, 'text') and response.text:
+                review_text = response.text
+            else:
+                review_text = "Unable to generate review at this time."
+                
+            print(f"✅ AI Review generated successfully with model")
+            
+            return JsonResponse({
+                'success': True,
+                'review': review_text,
+                'language': language
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'error': f'AI Review failed: {str(e)}'
+            }, status=500)
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
 

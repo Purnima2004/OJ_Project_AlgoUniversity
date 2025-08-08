@@ -5,9 +5,8 @@ from .views import (
     submit_solution, submission_detail_view, contest_detail,
     create_problem, create_contest, manage_test_cases, create_sample_data,
     compiler_view, run_code, submission_detail, my_submissions,
-    start_contest, get_contest_timer, end_contest
+    start_contest, get_contest_timer, end_contest, ai_review
 )
-from . import ai_review
 
 urlpatterns = [
     path('', home, name='home'),
@@ -41,5 +40,7 @@ urlpatterns = [
     path('compiler/run/', run_code, name='run_code'),
     path('compiler/submission/<str:submission_id>/', submission_detail, name='submission_detail'),
     path('compiler/my-submissions/', my_submissions, name='my_submissions'),
-    path('api/ai_review/', ai_review.ai_review, name='ai_review'),
+    
+    # AI Review URL
+    path('api/ai_review/', ai_review, name='ai_review'),
 ]

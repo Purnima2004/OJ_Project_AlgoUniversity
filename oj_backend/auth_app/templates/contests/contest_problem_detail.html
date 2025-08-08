@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ problem.title }} - Contest Problem</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; transition: background 0.3s, color 0.3s; }
+        .dark-mode { background: #181818; color: #eee; }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .nav-btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            background: #a3a2bb !important;
+            color: #fff !important;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .auth-btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .login-btn {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .login-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .signup-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .signup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            margin-left: auto;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 25px;
+            transition: background-color 0.3s;
+        }
+        
+        .user-info:hover {
+            background-color: rgba(102, 126, 234, 0.1);
+        }
+        
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            min-width: 200px;
+            z-index: 1000;
+            display: none;
+            margin-top: 0.5rem;
+        }
+        
+        .profile-dropdown.show {
+            display: block;
+        }
+        
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #eee;
+            text-decoration: none;
+            color: #333;
+            display: block;
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background-color: #eee;
+            margin: 0.5rem 0;
+        }
+
+        .main-container {
+            display: flex;
+            height: calc(100vh - 80px);
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        .left-panel {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            border-right: 1px solid #eee;
+        }
+        
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f8f9fa;
+        }
+        
+        .problem-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .problem-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        
+        .examples-section {
+            margin-bottom: 2rem;
+        }
+        
+        .examples-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .example {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .example-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .example-content {
+            font-family: 'Courier New', monospace;
+            background: #fff;
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        
+        .constraints-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .constraints-title {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+        
+        .constraints-list {
+            color: #856404;
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+        
+        .code-editor-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+        
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .language-select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-run {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-run:hover {
+            background: #218838;
+        }
+        
+        .btn-submit {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-submit:hover {
+            background: #0056b3;
+        }
+        
+        .code-editor {
+            flex: 1;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            margin-bottom: 1rem;
+        }
+        
+        .results-section {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .results-title {
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        
+        .test-cases {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .test-case {
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .test-case.passed {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .test-case.failed {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .test-case.error {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .execution-info {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .execution-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .execution-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+        
+        .execution-value {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .contest-timer {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .timer-title {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .timer-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .timer-warning {
+            color: #ff6b6b;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .contest-info {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .contest-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .contest-status {
+            font-size: 0.9rem;
+        }
+        
+        .theme-toggle {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+        
+        .theme-toggle:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo"><a href="{% url 'home' %}" style="color:inherit;text-decoration:none;">FullMoon</a></div>
+            <div class="nav-buttons">
+                <a href="{% url 'problems' %}" class="nav-btn">Problems</a>
+                <a href="{% url 'contests' %}" class="nav-btn">Contests</a>
+                <a href="{% url 'submissions' %}" class="nav-btn">Submissions</a>
+                <a href="{% url 'leaderboard' %}" class="nav-btn">Leaderboard</a>
+                <a href="{% url 'compiler' %}" class="nav-btn">Compiler</a>
+            </div>
+            <div class="auth-buttons">
+                {% if user.is_authenticated %}
+                    <div class="user-profile">
+                        <div class="user-info" onclick="toggleDropdown()">
+                            <span class="user-avatar">{{ user.username|slice:":1" }}</span>
+                        </div>
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <div class="dropdown-item">
+                                <strong>{{ user.username }}</strong>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'login' %}" class="auth-btn login-btn">Login</a>
+                    <a href="{% url 'register' %}" class="auth-btn signup-btn">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="left-panel">
+            <h1 class="problem-title">{{ problem.title }}</h1>
+            <div class="problem-description">{{ problem.description|linebreaks }}</div>
+            
+            {% if problem.examples %}
+            <div class="examples-section">
+                <h3 class="examples-title">Examples:</h3>
+                {% for example in problem.examples %}
+                <div class="example">
+                    <div class="example-title">Example {{ forloop.counter }}:</div>
+                    <div class="example-content">{{ example|linebreaks }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% if problem.constraints %}
+            <div class="constraints-section">
+                <h3 class="constraints-title">Constraints:</h3>
+                <ul class="constraints-list">
+                    {% for constraint in problem.constraints %}
+                    <li>{{ constraint }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="right-panel">
+            {% if contest %}
+            <div class="contest-timer" id="contestTimer">
+                <div class="timer-title">Contest Time Remaining</div>
+                <div class="timer-display" id="timerDisplay">Loading...</div>
+            </div>
+            
+            <div class="contest-info">
+                <div class="contest-title">{{ contest.title }}</div>
+                <div class="contest-status">
+                    {% if contest.is_running %}
+                        Contest is running
+                    {% else %}
+                        Contest has ended
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="code-editor-section">
+                <div class="editor-header">
+                    <select id="language-select" class="language-select">
+                        <option value="python">Python</option>
+                        <option value="cpp">C++</option>
+                        <option value="java">Java</option>
+                    </select>
+                    <div class="action-buttons">
+                        <button class="btn btn-run" onclick="runTestCases()">Run</button>
+                        <button class="btn btn-submit" onclick="submitSolution()">Submit</button>
+                        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+                    </div>
+                </div>
+                
+                <textarea id="code-editor" class="code-editor" placeholder="Write your code here..."></textarea>
+                
+                <div class="results-section" id="resultsSection">
+                    <div class="results-title">Results</div>
+                    <div class="test-cases" id="testCases"></div>
+                    <div class="execution-info" id="executionInfo">
+                        <div class="execution-item">
+                            <div class="execution-label">Execution Time</div>
+                            <div class="execution-value" id="execTime">-</div>
+                        </div>
+                        <div class="execution-item">
+                            <div class="execution-label">Status</div>
+                            <div class="execution-value" id="execStatus">-</div>
+                        </div>
+                    </div>
+                    <div class="error-message" id="errorMessage"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Code templates for different languages
+        const codeTemplates = {
+            python: `# Python code
+# Write your code here
+
+def solve():
+    # Your solution goes here
+    pass
+
+# Example usage
+if __name__ == "__main__":
+    solve()`,
+            cpp: `#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+// Write your code here
+
+int main() {
+    // Your solution goes here
+    
+    return 0;
+}`,
+            java: `import java.util.*;
+
+public class Main {
+    // Write your code here
+    
+    public static void main(String[] args) {
+        // Your solution goes here
+        
+    }
+}`
+        };
+        
+        // Language switching functionality
+        const languageSelect = document.getElementById('language-select');
+        const codeEditor = document.getElementById('code-editor');
+        
+        // Initialize with Python template
+        codeEditor.value = codeTemplates.python;
+        
+        // Language change handler
+        languageSelect.addEventListener('change', function() {
+            const selectedLanguage = this.value;
+            codeEditor.value = codeTemplates[selectedLanguage];
+        });
+        
+        // Load saved code from localStorage
+        const savedCode = localStorage.getItem(`contest_problem_${problemId}_code`);
+        if (savedCode) {
+            codeEditor.value = savedCode;
+        }
+        
+        // Save code to localStorage when user types
+        codeEditor.addEventListener('input', function() {
+            localStorage.setItem(`contest_problem_${problemId}_code`, this.value);
+        });
+        
+        const problemId = {{ problem.id }};
+        const contestId = {{ contest.id|default:"null" }};
+        let timerInterval;
+        
+        function toggleDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const themeBtn = document.querySelector('.theme-toggle');
+            if (document.body.classList.contains('dark-mode')) {
+                themeBtn.textContent = '☀️';
+            } else {
+                themeBtn.textContent = '🌙';
+            }
+        }
+        
+        function updateTimer() {
+            if (!contestId) return;
+            
+            fetch(`/auth/contest/${contestId}/timer/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const timeRemaining = data.time_remaining;
+                    const timerElement = document.getElementById('timerDisplay');
+                    
+                    if (timeRemaining <= 0) {
+                        timerElement.textContent = '00:00:00';
+                        timerElement.classList.add('timer-warning');
+                        clearInterval(timerInterval);
+                        alert('Contest time is up!');
+                        window.location.href = `/auth/contest/${contestId}/`;
+                    } else {
+                        const hours = Math.floor(timeRemaining / 3600);
+                        const minutes = Math.floor((timeRemaining % 3600) / 60);
+                        const seconds = timeRemaining % 60;
+                        
+                        const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                        timerElement.textContent = timeString;
+                        
+                        if (timeRemaining <= 300) { // 5 minutes warning
+                            timerElement.classList.add('timer-warning');
+                        }
+                    }
+                } else {
+                    // User hasn't started contest yet
+                    const timerElement = document.getElementById('timerDisplay');
+                    timerElement.textContent = 'Not Started';
+                    clearInterval(timerInterval);
+                }
+            })
+            .catch(error => {
+                console.error('Error updating timer:', error);
+                // User hasn't started contest yet
+                const timerElement = document.getElementById('timerDisplay');
+                timerElement.textContent = 'Not Started';
+                clearInterval(timerInterval);
+            });
+        }
+        
+        function runTestCases() {
+            console.log('runTestCases function called');
+            const code = document.getElementById('code-editor').value;
+            const language = document.getElementById('language-select').value;
+            
+            if (!code.trim()) {
+                alert('Please write some code first!');
+                return;
+            }
+            
+            console.log('Code:', code);
+            console.log('Language:', language);
+            
+            // Show results section
+            const resultsSection = document.getElementById('resultsSection');
+            resultsSection.style.display = 'block';
+            
+            console.log('Showing results section');
+            
+            // Clear previous results
+            document.getElementById('testCases').innerHTML = '';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('execTime').textContent = '-';
+            document.getElementById('execStatus').textContent = '-';
+            
+            const url = `/auth/problem/${problemId}/submit/`;
+            console.log('Sending request to:', url);
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    code: code,
+                    language: language,
+                    mode: 'run'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Response received:', response);
+                console.log('Data received:', data);
+                displayResults(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                displayError('Network error occurred. Please try again.');
+            });
+        }
+        
+        function submitSolution() {
+            const code = document.getElementById('code-editor').value;
+            const language = document.getElementById('language-select').value;
+            
+            if (!code.trim()) {
+                alert('Please write some code first!');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to submit this solution? This will be judged against all test cases.')) {
+                // Show results section
+                const resultsSection = document.getElementById('resultsSection');
+                resultsSection.style.display = 'block';
+                
+                // Clear previous results
+                document.getElementById('testCases').innerHTML = '';
+                document.getElementById('errorMessage').style.display = 'none';
+                document.getElementById('execTime').textContent = '-';
+                document.getElementById('execStatus').textContent = '-';
+                
+                fetch(`/auth/problem/${problemId}/submit/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        code: code,
+                        language: language,
+                        mode: 'submit'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    displayResults(data);
+                    if (data.status === 'AC') {
+                        alert('Congratulations! Your solution passed all test cases!');
+                    }
+                })
+                .catch(error => {
+                    displayError('Network error occurred. Please try again.');
+                });
+            }
+        }
+        
+        function displayResults(data) {
+            const testCasesDiv = document.getElementById('testCases');
+            const errorMessage = document.getElementById('errorMessage');
+            const execTime = document.getElementById('execTime');
+            const execStatus = document.getElementById('execStatus');
+            
+            // Display execution info
+            if (data.execution_time !== undefined) {
+                execTime.textContent = data.execution_time + 'ms';
+            }
+            execStatus.textContent = data.status || 'Unknown';
+            
+            // Display test cases if available
+            if (data.test_cases && data.test_cases.length > 0) {
+                data.test_cases.forEach((testCase, index) => {
+                    const testCaseDiv = document.createElement('div');
+                    testCaseDiv.className = `test-case ${testCase.status.toLowerCase()}`;
+                    
+                    let statusText = '';
+                    switch(testCase.status) {
+                        case 'AC': statusText = '✓ Passed'; break;
+                        case 'WA': statusText = '✗ Wrong Answer'; break;
+                        case 'TLE': statusText = '⏰ Time Limit Exceeded'; break;
+                        case 'MLE': statusText = '💾 Memory Limit Exceeded'; break;
+                        case 'RE': statusText = '💥 Runtime Error'; break;
+                        case 'CE': statusText = '🔧 Compilation Error'; break;
+                        default: statusText = testCase.status;
+                    }
+                    
+                    testCaseDiv.innerHTML = `
+                        <strong>Test Case ${index + 1}:</strong> ${statusText}<br>
+                        <small>Time: ${testCase.execution_time}ms</small>
+                        ${testCase.error_message ? `<br><small>Error: ${testCase.error_message}</small>` : ''}
+                    `;
+                    testCasesDiv.appendChild(testCaseDiv);
+                });
+            } else {
+                // Display summary
+                const summaryDiv = document.createElement('div');
+                summaryDiv.className = `test-case ${data.status === 'AC' ? 'passed' : 'failed'}`;
+                
+                let statusText = '';
+                switch(data.status) {
+                    case 'AC': statusText = '✓ All test cases passed!'; break;
+                    case 'WA': statusText = '✗ Wrong Answer'; break;
+                    case 'TLE': statusText = '⏰ Time Limit Exceeded'; break;
+                    case 'MLE': statusText = '💾 Memory Limit Exceeded'; break;
+                    case 'RE': statusText = '💥 Runtime Error'; break;
+                    case 'CE': statusText = '🔧 Compilation Error'; break;
+                    default: statusText = data.status;
+                }
+                
+                summaryDiv.innerHTML = `
+                    <strong>Result:</strong> ${statusText}<br>
+                    <small>Test Cases Passed: ${data.test_cases_passed}/${data.total_test_cases}</small>
+                `;
+                testCasesDiv.appendChild(summaryDiv);
+            }
+            
+            // Display error message if any
+            if (data.error_message) {
+                errorMessage.style.display = 'block';
+                errorMessage.innerHTML = data.error_message.replace(/\n/g, '<br>');
+            }
+        }
+        
+        function displayError(error) {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.style.display = 'block';
+            errorMessage.innerHTML = error.replace(/\n/g, '<br>');
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Start timer if contest is active
+        {% if contest and contest.is_running %}
+            // Always try to start timer - it will handle the case where user hasn't started contest
+            updateTimer();
+            timerInterval = setInterval(updateTimer, 1000);
+        {% endif %}
+        
+        document.addEventListener('click', function(event) {
+            const userProfile = document.querySelector('.user-profile');
+            const dropdown = document.getElementById('profileDropdown');
+            if (userProfile && !userProfile.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+        
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const dropdown = document.getElementById('profileDropdown');
+                dropdown.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html> 
