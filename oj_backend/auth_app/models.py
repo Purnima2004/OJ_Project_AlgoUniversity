@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from datetime import timedelta
 import json
 
 class Problem(models.Model):
@@ -158,13 +159,15 @@ class ContestParticipation(models.Model):
         if not self.is_active:
             return 0
         
+        # User has a fixed 90-minute window once they start
+        personal_deadline = self.start_time + timedelta(minutes=90)
+        # But never extend beyond contest's scheduled end
         contest_end = self.contest.end_date
+        effective_deadline = min(personal_deadline, contest_end)
         now = timezone.now()
-        
-        if now >= contest_end:
+        if now >= effective_deadline:
             return 0
-        
-        return int((contest_end - now).total_seconds())
+        return int((effective_deadline - now).total_seconds())
     
     @property
     def elapsed_time(self):

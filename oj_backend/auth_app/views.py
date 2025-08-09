@@ -5,6 +5,8 @@ from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 from django.db import IntegrityError
 from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime
+from django.utils.timezone import make_aware, get_current_timezone
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from .models import Problem, Contest, UserProfile, Submission, ConceptOfDay, CodeSubmission, TestCase, SubmissionResult, ContestParticipation
@@ -49,6 +51,65 @@ def ensure_user_profile(user):
         defaults={'score': 0, 'rank': 0}
     )
     return user_profile
+
+def ensure_concept_of_day_current():
+    """Ensure ConceptOfDay entry reflects today's concept.
+    This runs quickly on each dashboard load so the concept rotates daily
+    even if the background task isn't scheduled.
+    """
+    concepts = [
+        {
+            'title': 'Dynamic Programming',
+            'description': (
+                'Dynamic Programming solves complex problems by breaking them into '
+                'overlapping subproblems and reusing results.'
+            ),
+            'example_code': 'def fib(n):\n    dp=[0,1]\n    for _ in range(2,n+1): dp.append(dp[-1]+dp[-2])\n    return dp[n]'
+        },
+        {
+            'title': 'Binary Search',
+            'description': 'Find target in sorted data by halving the search space (O(log n)).',
+            'example_code': 'def bs(a,x):\n    l,r=0,len(a)-1\n    while l<=r:\n        m=(l+r)//2\n        if a[m]==x:return m\n        if a[m]<x:l=m+1\n        else:r-=1\n    return -1'
+        },
+        {
+            'title': 'Two Pointers Technique',
+            'description': 'Use two indices to scan arrays/strings in linear time for pair problems.',
+            'example_code': 'def two_sum_sorted(a,t):\n    i,j=0,len(a)-1\n    while i<j:\n        s=a[i]+a[j]\n        if s==t:return i,j\n        if s<t:i+=1\n        else:j-=1\n    return -1,-1'
+        },
+        {
+            'title': 'Sliding Window',
+            'description': 'Maintain a moving subarray/substring to compute aggregates in O(n).',
+            'example_code': 'def max_sum_k(a,k):\n    cur=sum(a[:k]);ans=cur\n    for i in range(k,len(a)):\n        cur+=a[i]-a[i-k];ans=max(ans,cur)\n    return ans'
+        },
+        {
+            'title': 'Graph Traversal (BFS/DFS)',
+            'description': 'Explore graph nodes for reachability and shortest paths.',
+            'example_code': 'from collections import deque\n\ndef bfs(g,s):\n    vis=set([s]);q=deque([s])\n    while q:\n        u=q.popleft()\n        for v in g[u]:\n            if v not in vis: vis.add(v); q.append(v)'
+        },
+    ]
+
+    today = timezone.now().date()
+    index = today.timetuple().tm_yday % len(concepts)
+    selected = concepts[index]
+
+    # Single row with id=1 acts as the current concept
+    concept, created = ConceptOfDay.objects.get_or_create(
+        id=1,
+        defaults={
+            'title': selected['title'],
+            'description': selected['description'],
+            'example_code': selected.get('example_code', ''),
+        }
+    )
+    if not created and (
+        concept.title != selected['title'] or
+        concept.description != selected['description'] or
+        concept.example_code != selected.get('example_code', '')
+    ):
+        concept.title = selected['title']
+        concept.description = selected['description']
+        concept.example_code = selected.get('example_code', '')
+        concept.save()
 
 @redirect_if_authenticated
 def register_view(request):
@@ -96,6 +157,7 @@ def home(request):
         return render(request, 'landing/landing.html')
     
     # If user is authenticated, show dashboard
+    ensure_concept_of_day_current()
     now = timezone.now()
     active_contests = Contest.objects.filter(
         is_active=True,
@@ -109,16 +171,10 @@ def home(request):
     ).count()
     concept_of_day = ConceptOfDay.objects.first()
     
-    if not concept_of_day:
-        concept_of_day = {
-            'title': 'Dynamic Programming',
-            'description': 'Dynamic Programming is a method for solving complex problems by breaking them down into simpler subproblems. It is applicable when the subproblems are not independent, that is, when subproblems share subsubproblems.',
-            'example_code': 'def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)'
-        }
-    
     context = {
         'contests': active_contests,
         'active_contests_count': active_contests_count,
+        'total_contests': active_contests_count,
         'concept_of_day': concept_of_day,
         'total_problems': Problem.objects.count(),
         'total_users': User.objects.count(),
@@ -188,11 +244,19 @@ def problem_detail(request, problem_id):
     # Check if this is a contest problem
     contest_id = request.GET.get('contest')
     contest = None
+    participation = None
     if contest_id:
         try:
             contest = Contest.objects.get(id=contest_id)
         except Contest.DoesNotExist:
             contest = None
+        else:
+            if request.user.is_authenticated:
+                participation = ContestParticipation.objects.filter(
+                    user=request.user,
+                    contest=contest,
+                    is_active=True
+                ).first()
     
     if request.method == 'POST' and request.user.is_authenticated:
         form = ProblemSubmissionForm(request.POST)
@@ -221,7 +285,8 @@ def problem_detail(request, problem_id):
         'problem': problem,
         'form': form,
         'test_cases': test_cases,
-        'contest': contest
+        'contest': contest,
+        'participation': participation
     }
     
     # Use contest template if accessed from contest
@@ -587,6 +652,18 @@ def start_contest(request, contest_id):
             'error': 'Contest is not currently running'
         })
     
+    # Enforce registration cutoff: users can start only until August 15 (inclusive)
+    try:
+        tz = get_current_timezone()
+        cutoff = make_aware(datetime(timezone.now().year, 8, 15, 23, 59, 59), tz)
+    except Exception:
+        cutoff = timezone.now()  # safety fallback
+    if timezone.now() > cutoff:
+        return JsonResponse({
+            'success': False,
+            'error': 'Registration for this contest is closed.'
+        })
+    
     # Check if user already has an active participation
     existing_participation = ContestParticipation.objects.filter(
         user=request.user,
@@ -600,27 +677,25 @@ def start_contest(request, contest_id):
             'error': 'You are already participating in this contest'
         })
     
-    # Check if user has an inactive participation and reactivate it
-    inactive_participation = ContestParticipation.objects.filter(
+    # If user had previously ended the contest, do not allow re-entry
+    previously_ended = ContestParticipation.objects.filter(
         user=request.user,
         contest=contest,
-        is_active=False
-    ).first()
+        is_active=False,
+        end_time__isnull=False
+    ).exists()
+    if previously_ended:
+        return JsonResponse({
+            'success': False,
+            'error': 'You have already ended this contest and cannot re-enter.'
+        })
     
-    if inactive_participation:
-        # Reactivate the participation
-        inactive_participation.is_active = True
-        inactive_participation.start_time = timezone.now()
-        inactive_participation.end_time = None
-        inactive_participation.save()
-        participation = inactive_participation
-    else:
-        # Create new participation
-        participation = ContestParticipation.objects.create(
-            user=request.user,
-            contest=contest,
-            is_active=True
-        )
+    # Create new participation
+    participation = ContestParticipation.objects.create(
+        user=request.user,
+        contest=contest,
+        is_active=True
+    )
     
     return JsonResponse({
         'success': True,
