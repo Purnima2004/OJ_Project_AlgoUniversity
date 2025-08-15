@@ -22,6 +22,6 @@ urlpatterns = [
     path('', home, name='home'),
     path('home/', home, name='home'),
     path('admin/', admin.site.urls),
-    path('api/', include('auth_app.api_urls')),
+    # path('api/', include('auth_app.api_urls')),  # Commented out - JWT not needed
     path('auth/', include('auth_app.urls')),
 ]
