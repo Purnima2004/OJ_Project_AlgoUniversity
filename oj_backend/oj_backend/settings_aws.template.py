@@ -1,5 +1,7 @@
 """
-AWS Production Settings for FullMoon OJ
+AWS Production Settings Template for FullMoon OJ
+Copy this file to settings_aws.py and fill in your actual values
+NEVER commit settings_aws.py to version control!
 """
 import os
 from .settings import *
@@ -8,7 +10,7 @@ from .settings import *
 DEBUG = False
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', '_yp^_ffizn0$3y!zhfrpkbyk36@4wyncp0x+x5h5%7i9lkfo@$')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key-here')
 
 # AWS Database Configuration
 DATABASES = {
