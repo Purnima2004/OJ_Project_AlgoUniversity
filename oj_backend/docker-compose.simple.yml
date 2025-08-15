@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.simple
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount current directory for live code changes
+      - .:/app
+      # Mount SQLite database
+      - ./db.sqlite3:/app/db.sqlite3
+    environment:
+      - DEBUG=1
+      - DJANGO_SETTINGS_MODULE=oj_backend.settings
+    stdin_open: true
+    tty: true

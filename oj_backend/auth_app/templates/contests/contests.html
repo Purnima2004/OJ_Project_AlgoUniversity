@@ -17,13 +17,163 @@
             background: linear-gradient(to right, #D7DDE8, #757F9A); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
             min-height: 100vh;
             color: #333;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background Elements */
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .gradient-circle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 25s ease-in-out infinite;
+        }
+
+        .gradient-circle:nth-child(1) {
+            width: 350px;
+            height: 350px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            top: -50px;
+            left: -50px;
+            animation-delay: 0s;
+        }
+
+        .gradient-circle:nth-child(2) {
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            top: 60%;
+            right: -30px;
+            animation-delay: -8s;
+        }
+
+        .gradient-circle:nth-child(3) {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            bottom: -30px;
+            left: 15%;
+            animation-delay: -15s;
+        }
+
+        .gradient-circle:nth-child(4) {
+            width: 180px;
+            height: 180px;
+            background: linear-gradient(45deg, #43e97b, #38f9d7);
+            top: 15%;
+            left: 70%;
+            animation-delay: -22s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg) scale(1);
+            }
+            25% {
+                transform: translateY(-15px) rotate(90deg) scale(1.05);
+            }
+            50% {
+                transform: translateY(0px) rotate(180deg) scale(1);
+            }
+            75% {
+                transform: translateY(15px) rotate(270deg) scale(0.95);
+            }
+        }
+
+        /* Moving Gradient Background */
+        .moving-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe, #00f2fe, #43e97b, #38f9d7);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+            z-index: -2;
+            opacity: 0.08;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Floating Elements */
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-element {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            animation: floatElement 20s linear infinite;
+        }
+
+        .floating-element:nth-child(1) { left: 5%; animation-delay: 0s; }
+        .floating-element:nth-child(2) { left: 15%; animation-delay: 3s; }
+        .floating-element:nth-child(3) { left: 25%; animation-delay: 6s; }
+        .floating-element:nth-child(4) { left: 35%; animation-delay: 9s; }
+        .floating-element:nth-child(5) { left: 45%; animation-delay: 12s; }
+        .floating-element:nth-child(6) { left: 55%; animation-delay: 15s; }
+        .floating-element:nth-child(7) { left: 65%; animation-delay: 18s; }
+        .floating-element:nth-child(8) { left: 75%; animation-delay: 21s; }
+        .floating-element:nth-child(9) { left: 85%; animation-delay: 24s; }
+        .floating-element:nth-child(10) { left: 95%; animation-delay: 27s; }
+
+        @keyframes floatElement {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
         }
         
         .navbar {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
             padding: 1rem 2rem;
             box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .nav-container {
@@ -37,7 +187,10 @@
         .logo {
             font-size: 1.5rem;
             font-weight: bold;
-            color: #667eea;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .nav-buttons {
@@ -98,7 +251,7 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-
+        
         .user-profile {
             display: flex;
             align-items: center;
@@ -196,138 +349,471 @@
         
         .main-container {
             max-width: 1200px;
-            margin: 2rem auto;
+            margin: 1rem auto;
             padding: 0 2rem;
         }
         
+        /* Enhanced page title */
         .page-title {
+            font-size: 3.5rem;
+            color: white;
+            margin-bottom: 1rem;
+            text-align: center;
+            animation: fadeInUp 1s ease-out;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            font-weight: 900;
+        }
+
+        .page-subtitle {
             text-align: center;
             color: white;
-            font-size: 2.5rem;
+            opacity: 0.9;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease-out 0.2s both;
+            font-weight: 700;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        .upcoming-card:hover .card-graphic::after,
+        .featured-card:hover .featured-graphic::after {
+            animation: float 2s ease-in-out infinite;
+        }
+
+        /* Upcoming Contests Section */
+        .upcoming-section {
+            margin-bottom: 1rem;
+            margin-top: -1rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .upcoming-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
             margin-bottom: 2rem;
         }
         
-        .contests-grid {
+        .upcoming-card {
+            background: rgba(25, 25, 112, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(25, 25, 112, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(75, 0, 130, 0.3);
+            position: relative;
+        }
+        
+        .upcoming-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            z-index: 1;
+        }
+        
+        .upcoming-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .card-graphic {
+            height: 200px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .card-graphic::after {
+            content: '🏆';
+            font-size: 3rem;
+            opacity: 0.8;
+            filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.3));
+        }
+
+        .card-graphic::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .card-graphic::after {
+            content: '📅';
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            font-size: 1.2rem;
+        }
+
+        .card-content {
+            padding: 2rem;
+            position: relative;
+        }
+        
+        .card-content::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        }
+
+        .countdown {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .contest-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.8rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            letter-spacing: -0.5px;
+        }
+
+        .contest-time {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+        
+        .contest-time div {
+            margin-bottom: 0.3rem;
+        }
+        
+        .contest-time strong {
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Status indicators */
+        .status-upcoming {
+            color: #ffd700;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        .status-running {
+            color: #00ff00;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        
+        .status-ended {
+            color: #ff6b6b;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        }
+
+        /* Featured Contests Section */
+        .featured-section {
+            margin-bottom: 3rem;
+            margin-top: -1rem;
+        }
+
+        .featured-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .featured-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .sponsor-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .sponsor-link:hover {
+            text-decoration: underline;
+        }
+
+        .featured-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 2rem;
         }
-        
-        .contest-card {
-            background: rgba(255, 255, 255, 0.95);
+
+                .featured-card {
+            background: rgba(25, 25, 112, 0.95);
             border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(25, 25, 112, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(75, 0, 130, 0.3);
+            position: relative;
         }
         
-        .contest-card:hover {
+        .featured-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            z-index: 1;
+        }
+        
+        .featured-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
         }
-        
-        .contest-title {
-            font-size: 1.5rem;
-            color: #667eea;
-            margin-bottom: 1rem;
-            font-weight: bold;
-        }
-        
-        .contest-description {
-            color: #666;
-            margin-bottom: 1.5rem;
-            line-height: 1.6;
-        }
-        
-        .contest-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .detail-item {
+
+        .featured-graphic {
+            height: 150px;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            position: relative;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
         
-        .detail-label {
-            font-size: 0.8rem;
-            color: #999;
-            margin-bottom: 0.25rem;
+        .featured-graphic::after {
+            content: '⭐';
+            font-size: 2.5rem;
+            opacity: 0.8;
+            filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.3));
         }
-        
-        .detail-value {
-            font-weight: 500;
-            color: #333;
+
+        .featured-graphic.ended {
+            background: linear-gradient(135deg, #6c757d, #495057);
         }
-        
+
+        .featured-content {
+            padding: 1.5rem;
+        }
+
         .contest-status {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.9);
             font-size: 1rem;
-            font-weight: bold;
-            text-align: center;
             margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .featured-contest-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.8rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            letter-spacing: -0.3px;
+        }
+
+        .featured-contest-date {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            line-height: 1.4;
         }
         
-        .status-active {
-            background: #d4edda;
-            color: #155724;
+        .featured-contest-date div {
+            margin-bottom: 0.3rem;
         }
         
-        .status-ended {
-            background: #f8d7da;
-            color: #721c24;
+        .featured-contest-date strong {
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Running Contests Section */
+        .running-section {
+            margin-bottom: 1rem;
+            margin-top: -1rem;
+        }
+
+        .running-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .running-card {
+            background: rgba(25, 25, 112, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(25, 25, 112, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(75, 0, 130, 0.3);
+            position: relative;
+        }
+
+        .running-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            z-index: 1;
+        }
+
+        .running-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .card-graphic.running {
+            height: 200px;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .running-countdown {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .running-countdown span:first-child {
+            margin-right: 0.5rem;
             font-size: 1.2rem;
         }
         
-        .join-btn {
-            width: 100%;
-            padding: 0.8rem;
-            border: none;
-            border-radius: 10px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        .running-countdown span:last-child {
+            font-weight: 600;
+            color: #00ff00;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
         }
-        
-        .join-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        
-        .view-btn {
-            width: 100%;
-            padding: 0.8rem;
-            border: none;
-            border-radius: 10px;
-            background: linear-gradient(45deg, #28a745, #20c997);
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .view-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
-        }
-        
+
+        /* Responsive design */
         @media (max-width: 768px) {
-            .contests-grid {
+            .page-title {
+                font-size: 2.5rem;
+            }
+            
+            .upcoming-grid {
                 grid-template-columns: 1fr;
             }
             
-            .contest-details {
+            .running-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .featured-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .featured-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Animated Background -->
+    <div class="background-animation">
+        <div class="gradient-circle"></div>
+        <div class="gradient-circle"></div>
+        <div class="gradient-circle"></div>
+        <div class="gradient-circle"></div>
+    </div>
+    
+    <div class="moving-gradient"></div>
+    
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+
     <nav class="navbar">
         <div class="nav-container">
             <div class="logo"><a href="{% url 'home' %}" style="color:inherit;text-decoration:none;">FullMoon</a></div>
@@ -361,64 +847,131 @@
     </nav>
 
     <div class="main-container">
-        <h1 class="page-title">Active Contests</h1>
+        <h1 class="page-title">Contests</h1>
+        <p class="page-subtitle">Compete with other coders in timed challenges</p>
         
-        <div class="contests-grid">
+                 <div class="upcoming-section">
+             <h2 class="section-title">Upcoming Contests</h2>
+             <div class="upcoming-grid">
+                 {% if contests %}
             {% for contest in contests %}
-            <div class="contest-card">
-                <div class="contest-title">{{ contest.title }}</div>
-                <div class="contest-description">{{ contest.description|truncatewords:30 }}</div>
-                
-                <div class="contest-details">
-                    <div class="detail-item">
-                        <div class="detail-label">Start Date</div>
-                        <div class="detail-value">{{ contest.start_date|date:"M d, Y H:i" }}</div>
+                         {% if contest.status == 'Upcoming' %}
+                         <div class="upcoming-card" onclick="window.location.href='{% url 'contest_detail' contest.id %}'">
+                             <div class="card-graphic"></div>
+                             <div class="card-content">
+                                 <div class="countdown">
+                                     <span>⏰</span>
+                                     {% if contest.status == 'Upcoming' %}
+                                         <span>Starts in {{ contest.start_date|timeuntil }}</span>
+                                     {% elif contest.status == 'Running' %}
+                                         <span>Ends in {{ contest.time_remaining }} hours</span>
+                                     {% else %}
+                                         <span>Contest ended</span>
+                                     {% endif %}
+                                 </div>
+                                 <div class="contest-name">{{ contest.title }}</div>
+                                 <div class="contest-time">
+                                     <div><strong>📅 Start:</strong> {{ contest.start_date|date:"M d, Y g:i A" }}</div>
+                                     <div><strong>⏰ End:</strong> {{ contest.end_date|date:"M d, Y g:i A" }}</div>
+                                     <div><strong>⏱️ Duration:</strong> {{ contest.duration_hours }} hours</div>
+                                     <div><strong>📊 Status:</strong> <span class="status-{{ contest.status|lower }}">{{ contest.status }}</span></div>
+                                 </div>
+                             </div>
+                         </div>
+                         {% endif %}
+                     {% endfor %}
+                 {% else %}
+                     <div class="upcoming-card">
+                         <div class="card-graphic"></div>
+                         <div class="card-content">
+                             <div class="countdown">
+                                 <span>⏰</span>
+                                 <span>No upcoming contests</span>
                     </div>
-                    <div class="detail-item">
-                        <div class="detail-label">End Date</div>
-                        <div class="detail-value">{{ contest.end_date|date:"M d, Y H:i" }}</div>
+                             <div class="contest-name">Check back soon!</div>
+                             <div class="contest-time">New contests will be announced here</div>
                     </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Problems</div>
-                        <div class="detail-value">{{ contest.problems.count }}</div>
                     </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Duration</div>
-                        <div class="detail-value">{{ contest.end_date|timeuntil:contest.start_date }}</div>
+                 {% endif %}
                     </div>
                 </div>
                 
-                <div class="contest-status status-{{ contest.is_running|yesno:'running,upcoming' }}">
-                    {% if contest.is_running %}
-                        Running
-                    {% elif contest.has_started %}
-                        Ended
-                    {% else %}
-                        Upcoming
-                    {% endif %}
+                <div class="running-section">
+                    <h2 class="section-title">Currently Running</h2>
+                    <div class="running-grid">
+                        {% for contest in contests %}
+                            {% if contest.status == 'Running' %}
+                            <div class="running-card" onclick="window.location.href='{% url 'contest_detail' contest.id %}'">
+                                <div class="card-graphic running"></div>
+                                <div class="card-content">
+                                    <div class="countdown running-countdown">
+                                        <span>🔥</span>
+                                        <span>Ends in {{ contest.time_remaining }} hours</span>
+                                    </div>
+                                    <div class="contest-name">{{ contest.title }}</div>
+                                    <div class="contest-time">
+                                        <div><strong>📅 Start:</strong> {{ contest.start_date|date:"M d, Y g:i A" }}</div>
+                                        <div><strong>⏰ End:</strong> {{ contest.end_date|date:"M d, Y g:i A" }}</div>
+                                        <div><strong>⏱️ Duration:</strong> {{ contest.duration_hours }} hours</div>
+                                        <div><strong>📊 Status:</strong> <span class="status-{{ contest.status|lower }}">{{ contest.status }}</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% empty %}
+                            <div class="running-card">
+                                <div class="card-graphic running"></div>
+                                <div class="card-content">
+                                    <div class="countdown running-countdown">
+                                        <span>🔥</span>
+                                        <span>No contests running</span>
+                                    </div>
+                                    <div class="contest-name">Check back later!</div>
+                                    <div class="contest-time">New contests will start soon</div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
                 
-                {% if user.is_authenticated %}
-                    {% if contest.is_running %}
-                        <button class="join-btn" onclick="startContest({{ contest.id }})">Start Contest</button>
-                    {% elif contest.has_started %}
-                        <button class="view-btn" onclick="viewContest({{ contest.id }})">View Results</button>
-                    {% else %}
-                        <button class="join-btn disabled" disabled>Upcoming</button>
-                    {% endif %}
-                {% else %}
-                    <a href="{% url 'login' %}" class="join-btn">Login to Join</a>
-                {% endif %}
-            </div>
-            {% empty %}
-            <div class="contest-card">
-                <div class="contest-title">No Active Contests</div>
-                <div class="contest-description">
-                    There are currently no active contests. Check back soon for upcoming competitions!
-                </div>
-                <div class="contest-status status-ended">No Contests</div>
+         <div class="featured-section">
+                          <div class="featured-header">
+                 <h2 class="featured-title">Featured Contests</h2>
+             </div>
+             <div class="featured-grid">
+                 {% if contests %}
+                     {% for contest in contests|slice:":3" %}
+                     <div class="featured-card" onclick="window.location.href='{% url 'contest_detail' contest.id %}'">
+                         <div class="featured-graphic {% if contest.status == 'Ended' %}ended{% endif %}"></div>
+                         <div class="featured-content">
+                             <div class="contest-status">
+                                 <span>⏰</span>
+                                 <span>{{ contest.status }}</span>
+                             </div>
+                             <div class="featured-contest-name">{{ contest.title }}</div>
+                             <div class="featured-contest-date">
+                                 <div><strong>📅 Start:</strong> {{ contest.start_date|date:"M d, Y g:i A" }}</div>
+                                 <div><strong>⏰ End:</strong> {{ contest.end_date|date:"M d, Y g:i A" }}</div>
+                                 <div><strong>⏱️ Duration:</strong> {{ contest.duration_hours }} hours</div>
+                                 <div><strong>📊 Status:</strong> <span class="status-{{ contest.status|lower }}">{{ contest.status }}</span></div>
+                             </div>
+                         </div>
             </div>
             {% endfor %}
+                 {% else %}
+                     <div class="featured-card">
+                         <div class="featured-graphic"></div>
+                         <div class="featured-content">
+                             <div class="contest-status">
+                                 <span>⏰</span>
+                                 <span>No contests available</span>
+                             </div>
+                             <div class="featured-contest-name">Check back soon!</div>
+                             <div class="featured-contest-date">New contests will be announced here</div>
+                         </div>
+                     </div>
+                 {% endif %}
+             </div>
         </div>
     </div>
 
@@ -426,47 +979,6 @@
         function toggleDropdown() {
             const dropdown = document.getElementById('profileDropdown');
             dropdown.classList.toggle('show');
-        }
-        
-        function startContest(contestId) {
-            fetch(`/auth/contest/${contestId}/start/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Redirect to contest detail page
-                    window.location.href = `/auth/contest/${contestId}/`;
-                } else {
-                    alert('Error: ' + data.error);
-                }
-            })
-            .catch(error => {
-                alert('Network error: ' + error);
-            });
-        }
-        
-        function viewContest(contestId) {
-            window.location.href = `/auth/contest/${contestId}/`;
-        }
-        
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
         }
         
         document.addEventListener('click', function(event) {
@@ -483,6 +995,60 @@
                 dropdown.classList.remove('show');
             }
         });
+
+        // Parallax effect for gradient circles
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const circles = document.querySelectorAll('.gradient-circle');
+            
+            circles.forEach((circle, index) => {
+                const speed = (index + 1) * 0.3;
+                circle.style.transform = `translateY(${scrolled * speed}px) rotate(${scrolled * 0.05}deg) scale(${1 + scrolled * 0.0001})`;
+            });
+        });
+
+        // Add entrance animations to elements
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe elements for animation
+        document.querySelectorAll('.upcoming-card, .running-card, .featured-card, .page-title, .page-subtitle, .upcoming-section, .running-section, .featured-section').forEach(element => {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(20px)';
+            element.style.transition = 'all 0.6s ease';
+            observer.observe(element);
+        });
+        
+        // Add responsive design for running contests
+        if (window.innerWidth <= 768) {
+            document.querySelectorAll('.running-grid').forEach(grid => {
+                grid.style.gridTemplateColumns = '1fr';
+            });
+        }
     </script>
+    
+    <style>
+        /* Responsive design for mobile */
+        @media (max-width: 768px) {
+            .running-grid {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .running-card {
+                margin: 0 1rem;
+            }
+        }
+    </style>
 </body>
 </html> 

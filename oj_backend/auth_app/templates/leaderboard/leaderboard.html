@@ -17,13 +17,163 @@
             background: linear-gradient(to right, #D7DDE8, #757F9A); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
             min-height: 100vh;
             color: #333;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background Elements */
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .gradient-circle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 25s ease-in-out infinite;
+        }
+
+        .gradient-circle:nth-child(1) {
+            width: 350px;
+            height: 350px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            top: -50px;
+            left: -50px;
+            animation-delay: 0s;
+        }
+
+        .gradient-circle:nth-child(2) {
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            top: 60%;
+            right: -30px;
+            animation-delay: -8s;
+        }
+
+        .gradient-circle:nth-child(3) {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            bottom: -30px;
+            left: 15%;
+            animation-delay: -15s;
+        }
+
+        .gradient-circle:nth-child(4) {
+            width: 180px;
+            height: 180px;
+            background: linear-gradient(45deg, #43e97b, #38f9d7);
+            top: 15%;
+            left: 70%;
+            animation-delay: -22s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg) scale(1);
+            }
+            25% {
+                transform: translateY(-15px) rotate(90deg) scale(1.05);
+            }
+            50% {
+                transform: translateY(0px) rotate(180deg) scale(1);
+            }
+            75% {
+                transform: translateY(15px) rotate(270deg) scale(0.95);
+            }
+        }
+
+        /* Moving Gradient Background */
+        .moving-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe, #00f2fe, #43e97b, #38f9d7);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+            z-index: -2;
+            opacity: 0.08;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Floating Elements */
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-element {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            animation: floatElement 20s linear infinite;
+        }
+
+        .floating-element:nth-child(1) { left: 5%; animation-delay: 0s; }
+        .floating-element:nth-child(2) { left: 15%; animation-delay: 3s; }
+        .floating-element:nth-child(3) { left: 25%; animation-delay: 6s; }
+        .floating-element:nth-child(4) { left: 35%; animation-delay: 9s; }
+        .floating-element:nth-child(5) { left: 45%; animation-delay: 12s; }
+        .floating-element:nth-child(6) { left: 55%; animation-delay: 15s; }
+        .floating-element:nth-child(7) { left: 65%; animation-delay: 18s; }
+        .floating-element:nth-child(8) { left: 75%; animation-delay: 21s; }
+        .floating-element:nth-child(9) { left: 85%; animation-delay: 24s; }
+        .floating-element:nth-child(10) { left: 95%; animation-delay: 27s; }
+
+        @keyframes floatElement {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
         }
         
         .navbar {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
             padding: 1rem 2rem;
             box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .nav-container {
@@ -37,7 +187,10 @@
         .logo {
             font-size: 1.5rem;
             font-weight: bold;
-            color: #667eea;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .nav-buttons {
@@ -98,7 +251,7 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-
+        
         .user-profile {
             display: flex;
             align-items: center;
@@ -199,130 +352,190 @@
             margin: 2rem auto;
             padding: 0 2rem;
         }
-        
+
+        /* Enhanced page title */
         .page-title {
-            text-align: center;
+            font-size: 3.5rem;
             color: white;
-            font-size: 2.5rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            animation: fadeInUp 1s ease-out;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            font-weight: 900;
         }
-        
-        .leaderboard-table {
+
+        .page-subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 3rem;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Enhanced leaderboard container */
+        .leaderboard-container {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            overflow-x: auto;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeInUp 1s ease-out 0.4s both;
         }
-        
-        .table-header {
+
+        .leaderboard-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
             display: grid;
-            grid-template-columns: 80px 2fr 1fr 1fr 1fr;
+            grid-template-columns: 0.5fr 2fr 1fr 1fr;
             gap: 1rem;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            font-weight: bold;
-            color: #667eea;
+            align-items: center;
         }
-        
-        .user-row {
+
+        .leaderboard-row {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             display: grid;
-            grid-template-columns: 80px 2fr 1fr 1fr 1fr;
+            grid-template-columns: 0.5fr 2fr 1fr 1fr;
             gap: 1rem;
-            padding: 1rem;
-            border-bottom: 1px solid #eee;
-            transition: background 0.3s ease;
+            align-items: center;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
         }
-        
-        .user-row:hover {
-            background: #f8f9fa;
+
+        .leaderboard-row:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
         }
-        
-        .user-row:last-child {
+
+        .leaderboard-row:last-child {
             border-bottom: none;
         }
-        
-        .rank {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+
+        .leaderboard-row:nth-child(even) {
+            background: rgba(248, 249, 250, 0.8);
         }
-        
-        .rank-badge {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            font-weight: bold;
+
+        .leaderboard-row:nth-child(even):hover {
+            background: rgba(248, 249, 250, 1);
+        }
+
+        .rank {
+            font-weight: 600;
+            color: #667eea;
             font-size: 1.1rem;
         }
-        
-        .rank-1-badge {
-            background: linear-gradient(45deg, #ffd700, #ffed4e);
-            color: #333;
+
+        .rank.gold {
+            color: #ffd700;
         }
-        
-        .rank-2-badge {
-            background: linear-gradient(45deg, #c0c0c0, #e5e5e5);
-            color: #333;
+
+        .rank.silver {
+            color: #c0c0c0;
         }
-        
-        .rank-3-badge {
-            background: linear-gradient(45deg, #cd7f32, #daa520);
-            color: white;
+
+        .rank.bronze {
+            color: #cd7f32;
         }
-        
-        .rank-other-badge {
-            background: #f8f9fa;
-            color: #666;
-            border: 2px solid #e9ecef;
-        }
-        
+
         .username {
-            font-weight: 500;
+            font-weight: 600;
             color: #333;
         }
-        
+
         .score {
-            font-weight: bold;
+            font-weight: 600;
+            color: #28a745;
+        }
+
+        .problems-solved {
+            font-weight: 600;
             color: #667eea;
         }
-        
-        .problems-solved {
-            color: #666;
-        }
-        
-        .no-users {
+
+        .no-leaderboard {
             text-align: center;
-            padding: 3rem;
+            padding: 4rem 2rem;
             color: #666;
-            font-size: 1.2rem;
         }
-        
+
+        .no-leaderboard h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .no-leaderboard p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            color: #666;
+        }
+
+        /* Responsive design */
         @media (max-width: 768px) {
-            .table-header, .user-row {
-                grid-template-columns: 1fr;
-                gap: 0.5rem;
+            .page-title {
+                font-size: 2.5rem;
             }
             
-            .table-header {
+            .leaderboard-header, .leaderboard-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+                text-align: center;
+            }
+            
+            .leaderboard-header {
                 display: none;
             }
             
-            .user-row {
-                border: 1px solid #eee;
-                border-radius: 10px;
+            .leaderboard-row {
+                border: 1px solid rgba(0, 0, 0, 0.1);
+                border-radius: 15px;
                 margin-bottom: 1rem;
-                padding: 1rem;
+                padding: 1.5rem;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Animated Background -->
+    <div class="background-animation">
+        <div class="gradient-circle"></div>
+        <div class="gradient-circle"></div>
+        <div class="gradient-circle"></div>
+        <div class="gradient-circle"></div>
+    </div>
+    
+    <div class="moving-gradient"></div>
+    
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+
     <nav class="navbar">
         <div class="nav-container">
             <div class="logo"><a href="{% url 'home' %}" style="color:inherit;text-decoration:none;">FullMoon</a></div>
@@ -357,36 +570,39 @@
 
     <div class="main-container">
         <h1 class="page-title">Leaderboard</h1>
+        <p class="page-subtitle">See who's leading the coding competition</p>
         
-        <div class="leaderboard-table">
-            {% if user_profiles %}
-            <div class="table-header">
+        <div class="leaderboard-container">
+            {% if leaderboard %}
+            <div class="leaderboard-header">
                 <div>Rank</div>
                 <div>Username</div>
                 <div>Score</div>
                 <div>Problems Solved</div>
-                <div>Rank</div>
             </div>
             
-            {% for profile in user_profiles %}
-            <div class="user-row">
-                <div class="rank rank-{{ forloop.counter }}">
-                    {% if forloop.counter <= 3 %}
-                        <span class="rank-badge rank-{{ forloop.counter }}-badge">{{ forloop.counter }}</span>
+            {% for entry in leaderboard %}
+            <div class="leaderboard-row">
+                <div>
+                    {% if forloop.counter == 1 %}
+                        <span class="rank gold">🥇 {{ forloop.counter }}</span>
+                    {% elif forloop.counter == 2 %}
+                        <span class="rank silver">🥈 {{ forloop.counter }}</span>
+                    {% elif forloop.counter == 3 %}
+                        <span class="rank bronze">🥉 {{ forloop.counter }}</span>
                     {% else %}
-                        <span class="rank-badge rank-other-badge">{{ forloop.counter }}</span>
+                        <span class="rank">#{{ forloop.counter }}</span>
                     {% endif %}
                 </div>
-                <div class="username">{{ profile.user.username }}</div>
-                <div class="score">{{ profile.score }}</div>
-                <div class="problems-solved">{{ profile.problems_solved.count }}</div>
-                <div class="rank">{{ profile.rank }}</div>
+                <div class="username">{{ entry.username }}</div>
+                <div class="score">{{ entry.score }}</div>
+                <div class="problems-solved">{{ entry.problems_solved }}</div>
             </div>
             {% endfor %}
             {% else %}
-            <div class="no-users">
-                <h3>No Users Yet</h3>
-                <p>Be the first to solve problems and appear on the leaderboard!</p>
+            <div class="no-leaderboard">
+                <h3>No Leaderboard Data</h3>
+                <p>Start solving problems to appear on the leaderboard!</p>
             </div>
             {% endif %}
         </div>
@@ -411,6 +627,40 @@
                 const dropdown = document.getElementById('profileDropdown');
                 dropdown.classList.remove('show');
             }
+        });
+
+        // Parallax effect for gradient circles
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const circles = document.querySelectorAll('.gradient-circle');
+            
+            circles.forEach((circle, index) => {
+                const speed = (index + 1) * 0.3;
+                circle.style.transform = `translateY(${scrolled * speed}px) rotate(${scrolled * 0.05}deg) scale(${1 + scrolled * 0.0001})`;
+            });
+        });
+
+        // Add entrance animations to elements
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe elements for animation
+        document.querySelectorAll('.leaderboard-row, .page-title, .page-subtitle, .leaderboard-container').forEach(element => {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(20px)';
+            element.style.transition = 'all 0.6s ease';
+            observer.observe(element);
         });
     </script>
 </body>

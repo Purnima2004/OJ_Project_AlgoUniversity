@@ -204,6 +204,25 @@ def problems_view(request):
 def contests_view(request):
     contests = Contest.objects.filter(is_active=True).order_by('-start_date')
     
+    # Add status and duration properties to each contest
+    now = timezone.now()
+    for contest in contests:
+        if contest.start_date > now:
+            contest.status = 'Upcoming'
+            contest.time_remaining = None
+        elif contest.end_date < now:
+            contest.status = 'Ended'
+            contest.time_remaining = None
+        else:
+            contest.status = 'Running'
+            # Calculate remaining time for running contests
+            remaining = contest.end_date - now
+            contest.time_remaining = int(remaining.total_seconds() / 3600)  # hours remaining
+        
+        # Calculate duration in hours
+        duration = contest.end_date - contest.start_date
+        contest.duration_hours = int(duration.total_seconds() / 3600)
+    
     # Get user's active contest participation
     active_participation = None
     if request.user.is_authenticated:
@@ -244,19 +263,11 @@ def problem_detail(request, problem_id):
     # Check if this is a contest problem
     contest_id = request.GET.get('contest')
     contest = None
-    participation = None
     if contest_id:
         try:
             contest = Contest.objects.get(id=contest_id)
         except Contest.DoesNotExist:
             contest = None
-        else:
-            if request.user.is_authenticated:
-                participation = ContestParticipation.objects.filter(
-                    user=request.user,
-                    contest=contest,
-                    is_active=True
-                ).first()
     
     if request.method == 'POST' and request.user.is_authenticated:
         form = ProblemSubmissionForm(request.POST)
@@ -285,8 +296,7 @@ def problem_detail(request, problem_id):
         'problem': problem,
         'form': form,
         'test_cases': test_cases,
-        'contest': contest,
-        'participation': participation
+        'contest': contest
     }
     
     # Use contest template if accessed from contest
