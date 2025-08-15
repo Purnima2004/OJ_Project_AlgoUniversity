@@ -17,6 +17,17 @@ aws_settings.py
 settings.py
 **/settings.py
 **/settings_*.py
+**/settings_prod.py
+**/settings_aws.py
+
+# Database Files (CRITICAL - Contains User Data!)
+db.sqlite3
+db.sqlite3-journal
+*.sqlite
+*.sqlite3
+*.db
+**/db.sqlite3
+**/db.sqlite3-journal
 
 # Python
 __pycache__/
@@ -44,8 +55,6 @@ MANIFEST
 # Django
 *.log
 local_settings.py
-db.sqlite3
-db.sqlite3-journal
 media/
 staticfiles/
 
@@ -83,11 +92,6 @@ codes/
 logs/
 temp/
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
 # Backup files
 *.bak
 *.backup
@@ -101,4 +105,10 @@ service-account-key.json
 # Test files that might contain secrets
 test_*.py
 check_*.py
-update_*.py 
+update_*.py
+
+# Specific sensitive files (force block)
+oj_backend/db.sqlite3
+oj_backend/oj_backend/settings.py
+oj_backend/oj_backend/settings_aws.py
+oj_backend/oj_backend/settings_prod.py 
