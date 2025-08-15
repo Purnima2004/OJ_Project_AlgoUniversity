@@ -10,6 +10,29 @@
 **/.env
 **/.env.*
 
+# EXACT .env FILE PATHS (CRITICAL!)
+.env
+.env.aws
+.env.prod
+.env.local
+.env.development
+.env.test
+.env.production
+oj_backend/.env
+oj_backend/.env.aws
+oj_backend/.env.prod
+oj_backend/.env.local
+oj_backend/.env.development
+oj_backend/.env.test
+oj_backend/.env.production
+oj_backend/oj_backend/.env
+oj_backend/oj_backend/.env.aws
+oj_backend/oj_backend/.env.prod
+oj_backend/oj_backend/.env.local
+oj_backend/oj_backend/.env.development
+oj_backend/oj_backend/.env.test
+oj_backend/oj_backend/.env.production
+
 # Virtual Environment (ABSOLUTE BLOCK)
 venv/
 env/
@@ -117,10 +140,14 @@ test_*.py
 check_*.py
 update_*.py
 
-# Specific sensitive files (force block)
+# EXACT PATHS TO SENSITIVE FILES (CRITICAL!)
+venv/
 oj_backend/db.sqlite3
 oj_backend/oj_backend/settings.py
 oj_backend/oj_backend/settings_aws.py
 oj_backend/oj_backend/settings_prod.py
-venv/
-**/venv/ 
+oj_backend/check_participations.py
+oj_backend/test_timer.py
+oj_backend/test_examples.py
+oj_backend/test_gemini.py
+oj_backend/update_daily_content.py 
