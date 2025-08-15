@@ -1,0 +1,127 @@
+# Environment Variables & Secrets (ABSOLUTE BLOCK)
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.aws
+.env.prod
+*.env
+**/.env
+**/.env.*
+
+# Django Settings & Configuration (CRITICAL - Contains Secret Keys!)
+settings.py
+settings_aws.py
+settings_prod.py
+local_settings.py
+production_settings.py
+aws_settings.py
+**/settings.py
+**/settings_*.py
+
+# Database Files (CRITICAL - Contains User Data!)
+db.sqlite3
+db.sqlite3-journal
+*.sqlite
+*.sqlite3
+*.db
+**/db.sqlite3
+**/db.sqlite3-journal
+**/*.sqlite
+**/*.sqlite3
+**/*.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Django
+*.log
+local_settings.py
+media/
+staticfiles/
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+.env/
+**/venv/
+**/env/
+**/ENV/
+**/.venv/
+**/.env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Temporary files
+*.tmp
+*.temp
+codes/
+logs/
+temp/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# API Keys & Secrets
+secrets.json
+credentials.json
+service-account-key.json
+
+# Test files that might contain secrets
+test_*.py
+check_*.py
+update_*.py
+
+# EXACT PATHS TO SENSITIVE FILES (CRITICAL!)
+db.sqlite3
+oj_backend/settings.py
+oj_backend/settings_aws.py
+oj_backend/settings_prod.py
+check_participations.py
+test_timer.py
+test_examples.py
+test_gemini.py
+update_daily_content.py
