@@ -1,4 +1,4 @@
-# Environment Variables & Secrets
+# Environment Variables & Secrets (ABSOLUTE BLOCK)
 .env
 .env.local
 .env.development
@@ -7,6 +7,20 @@
 .env.aws
 .env.prod
 *.env
+**/.env
+**/.env.*
+
+# Virtual Environment (ABSOLUTE BLOCK)
+venv/
+env/
+ENV/
+.venv/
+.env/
+**/venv/
+**/env/
+**/ENV/
+**/.venv/
+**/.env/
 
 # Django Settings & Configuration (CRITICAL - Contains Secret Keys!)
 settings_aws.py
@@ -28,6 +42,9 @@ db.sqlite3-journal
 *.db
 **/db.sqlite3
 **/db.sqlite3-journal
+**/*.sqlite
+**/*.sqlite3
+**/*.db
 
 # Python
 __pycache__/
@@ -57,13 +74,6 @@ MANIFEST
 local_settings.py
 media/
 staticfiles/
-
-# Virtual Environment
-venv/
-env/
-ENV/
-.venv/
-.env/
 
 # IDE
 .vscode/
@@ -111,4 +121,6 @@ update_*.py
 oj_backend/db.sqlite3
 oj_backend/oj_backend/settings.py
 oj_backend/oj_backend/settings_aws.py
-oj_backend/oj_backend/settings_prod.py 
+oj_backend/oj_backend/settings_prod.py
+venv/
+**/venv/ 
