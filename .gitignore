@@ -8,13 +8,15 @@
 .env.prod
 *.env
 
-# Django Settings & Configuration
+# Django Settings & Configuration (CRITICAL - Contains Secret Keys!)
 settings_aws.py
 settings_prod.py
 local_settings.py
 production_settings.py
 aws_settings.py
 settings.py
+**/settings.py
+**/settings_*.py
 
 # Python
 __pycache__/
@@ -94,4 +96,9 @@ temp/
 # API Keys & Secrets
 secrets.json
 credentials.json
-service-account-key.json 
+service-account-key.json
+
+# Test files that might contain secrets
+test_*.py
+check_*.py
+update_*.py 
