@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - static_volume:/app/static
+      - media_volume:/app/media
+      - sqlite_volume:/app/db
+    environment:
+      - DEBUG=True
+      - DJANGO_SETTINGS_MODULE=oj_backend.settings
+    command: python manage.py runserver 0.0.0.0:8000
+    restart: unless-stopped
+
+volumes:
+  static_volume:
+  media_volume:
+  sqlite_volume:

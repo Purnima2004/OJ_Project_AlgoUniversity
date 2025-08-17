@@ -599,7 +599,7 @@
             {% for problem in problems %}
             <div class="problem-row">
                 <div><strong>#{{ problem.id }}</strong></div>
-                <div class="problem-title" onclick="window.location.href='{% url 'problem_detail' problem.id %}'">{{ problem.title }}</div>
+                <div class="problem-title" data-problem-id="{{ problem.id }}">{{ problem.title }}</div>
                 <div>
                     <span class="difficulty-badge difficulty-{{ problem.difficulty|lower }}">
                         {{ problem.difficulty }}
@@ -678,6 +678,14 @@
             element.style.transform = 'translateY(20px)';
             element.style.transition = 'all 0.6s ease';
             observer.observe(element);
+        });
+
+        // Add click handlers for problem titles
+        document.querySelectorAll('.problem-title').forEach(title => {
+            title.addEventListener('click', function() {
+                const problemId = this.getAttribute('data-problem-id');
+                window.location.href = `/problem/${problemId}/`;
+            });
         });
 
 

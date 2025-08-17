@@ -114,10 +114,24 @@ def ensure_concept_of_day_current():
 @redirect_if_authenticated
 def register_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
+        username = request.POST.get('username')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        
+        # Validate required fields
+        if not username or not password1 or not password2:
+            return render(request, 'register/register.html', {
+                'error': 'Please fill in all fields.'
+            })
+        
+        # Check if passwords match
+        if password1 != password2:
+            return render(request, 'register/register.html', {
+                'error': 'Passwords do not match.'
+            })
+        
         try:
-            user = User.objects.create_user(username=username, password=password)
+            user = User.objects.create_user(username=username, password=password1)
             # Create user profile
             ensure_user_profile(user)
             login(request, user)

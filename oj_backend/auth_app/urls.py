@@ -17,8 +17,8 @@ urlpatterns = [
     
     # Problem and Contest URLs
     path('problems/', problems_view, name='problems'),
-    path('problem/<int:problem_id>/', problem_detail, name='problem_detail'),
-    path('problem/<int:problem_id>/submit/', submit_solution, name='submit_solution'),
+    path('problem/<str:problem_id>/', problem_detail, name='problem_detail'),
+    path('problem/<str:problem_id>/submit/', submit_solution, name='submit_solution'),
     path('contests/', contests_view, name='contests'),
     path('contest/<int:contest_id>/', contest_detail, name='contest_detail'),
     path('contest/<int:contest_id>/start/', start_contest, name='start_contest'),
@@ -33,7 +33,7 @@ urlpatterns = [
     # Admin URLs
     path('admin/create-problem/', create_problem, name='create_problem'),
     path('admin/create-contest/', create_contest, name='create_contest'),
-    path('admin/problem/<int:problem_id>/test-cases/', manage_test_cases, name='manage_test_cases'),
+    path('admin/problem/<str:problem_id>/test-cases/', manage_test_cases, name='manage_test_cases'),
     path('admin/create-sample-data/', create_sample_data, name='create_sample_data'),
     
     # Compiler URLs

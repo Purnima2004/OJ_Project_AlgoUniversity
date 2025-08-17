@@ -409,9 +409,9 @@
             <form method="post" class="register-form">
                 {% csrf_token %}
                 
-                {% if form.errors %}
+                {% if error %}
                 <div class="error-message">
-                    Please correct the errors below.
+                    {{ error }}
                 </div>
                 {% endif %}
                 
