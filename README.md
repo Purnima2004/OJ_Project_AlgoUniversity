@@ -223,9 +223,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Contact
 
-- **Project Link**: [https://github.com/yourusername/oj-project](https://github.com/yourusername/oj-project)
+- **Project Link**: [https://github.com/yourusername/oj-project](https://github.com/Purnima2004/OJ_Project_AlgoUniversity)
 - **Live Demo**: [https://fullmoon.icu](https://fullmoon.icu)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/oj-project/issues)
+- **Issues**: [GitHub Issues](https://github.com/Purnima2004/OJ_Project_AlgoUniversity/issues)
 
 ---
 
