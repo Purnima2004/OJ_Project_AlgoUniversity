@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: oj-backend
+    env: docker
+    dockerfilePath: ./oj_backend/Dockerfile
+    dockerContext: ./oj_backend
+    region: ohio # or any region you prefer
+    plan: free # Can upgrade later
+    envVars:
+      - key: SECURE_PROXY_SSL_HEADER
+        value: HTTP_X_FORWARDED_PROTO,https
+      - key: USE_X_FORWARDED_HOST
+        value: "True"
+      - key: IS_PRODUCTION
+        value: "True"
+      - key: DATABASE_URL
+        sync: false # Set via Render dashboard later
+      - key: GEMINI_API_KEY
+        sync: false # Set via Render dashboard later
+      - key: SECRET_KEY
+        generateValue: true

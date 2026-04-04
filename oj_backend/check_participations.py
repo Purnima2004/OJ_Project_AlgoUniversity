@@ -14,7 +14,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'oj_backend.settings')
 django.setup()
 
-from auth_app.models import Contest, ContestParticipation, User
+from judge.models import Contest, ContestParticipation
+from django.contrib.auth.models import User
 from django.utils import timezone
 
 def check_participations():

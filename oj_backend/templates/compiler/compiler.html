@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Online Compiler - FullMoon</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #757F9A;
+            /* fallback for old browsers */
+            background: -webkit-linear-gradient(to right, #D7DDE8, #757F9A);
+            /* Chrome 10-25, Safari 5.1-6 */
+            background: linear-gradient(to right, #D7DDE8, #757F9A);
+            /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background Elements */
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .gradient-circle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 25s ease-in-out infinite;
+        }
+
+        .gradient-circle:nth-child(1) {
+            width: 350px;
+            height: 350px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            top: -50px;
+            left: -50px;
+            animation-delay: 0s;
+        }
+
+        .gradient-circle:nth-child(2) {
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            top: 60%;
+            right: -30px;
+            animation-delay: -8s;
+        }
+
+        .gradient-circle:nth-child(3) {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            bottom: -30px;
+            left: 15%;
+            animation-delay: -15s;
+        }
+
+        .gradient-circle:nth-child(4) {
+            width: 180px;
+            height: 180px;
+            background: linear-gradient(45deg, #43e97b, #38f9d7);
+            top: 15%;
+            left: 70%;
+            animation-delay: -22s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg) scale(1);
+            }
+
+            25% {
+                transform: translateY(-15px) rotate(90deg) scale(1.05);
+            }
+
+            50% {
+                transform: translateY(0px) rotate(180deg) scale(1);
+            }
+
+            75% {
+                transform: translateY(15px) rotate(270deg) scale(0.95);
+            }
+        }
+
+        /* Moving Gradient Background */
+        .moving-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe, #00f2fe, #43e97b, #38f9d7);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+            z-index: -2;
+            opacity: 0.08;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Floating Elements */
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-element {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            animation: floatElement 20s linear infinite;
+        }
+
+        .floating-element:nth-child(1) {
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        .floating-element:nth-child(2) {
+            left: 15%;
+            animation-delay: 3s;
+        }
+
+        .floating-element:nth-child(3) {
+            left: 25%;
+            animation-delay: 6s;
+        }
+
+        .floating-element:nth-child(4) {
+            left: 35%;
+            animation-delay: 9s;
+        }
+
+        .floating-element:nth-child(5) {
+            left: 45%;
+            animation-delay: 12s;
+        }
+
+        .floating-element:nth-child(6) {
+            left: 55%;
+            animation-delay: 15s;
+        }
+
+        .floating-element:nth-child(7) {
+            left: 65%;
+            animation-delay: 18s;
+        }
+
+        .floating-element:nth-child(8) {
+            left: 75%;
+            animation-delay: 21s;
+        }
+
+        .floating-element:nth-child(9) {
+            left: 85%;
+            animation-delay: 24s;
+        }
+
+        .floating-element:nth-child(10) {
+            left: 95%;
+            animation-delay: 27s;
+        }
+
+        @keyframes floatElement {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            background: #a3a2bb !important;
+            color: #fff !important;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .auth-btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-btn {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .login-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .signup-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .signup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            margin-left: auto;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .user-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .user-avatar {
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .user-avatar:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 0.5rem 0;
+            min-width: 180px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+        }
+
+        .profile-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            color: #333;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #667eea;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: #e9ecef;
+            margin: 0.5rem 0;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .compiler-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .compiler-header h1 {
+            font-size: 3.5rem;
+            color: white;
+            margin-bottom: 2rem;
+            margin-top: -1rem;
+            text-align: center;
+            animation: fadeInUp 1s ease-out;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            font-weight: 900;
+        }
+
+        .compiler-header p {
+            font-size: 1.1rem;
+            font-weight: 700;
+            opacity: 0.9;
+        }
+
+        .compiler-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .code-section,
+        .output-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+        }
+
+        .language-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .lang-btn {
+            padding: 0.4rem 1.2rem;
+            border: 2px solid #667eea;
+            background: transparent;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .lang-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .lang-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .code-editor {
+            width: 100%;
+            height: 400px;
+            background: #1e1e1e;
+            color: #fff;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            border: none;
+            border-radius: 10px;
+            padding: 1rem;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .code-editor:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+        }
+
+        .input-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .input-field {
+            width: 100%;
+            height: 100px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 1rem;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        .run-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .run-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .run-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .output-display {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 1rem;
+            min-height: 200px;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            overflow-y: auto;
+        }
+
+        .output-success {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .output-error {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .execution-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #e9ecef;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+
+        @media (max-width: 768px) {
+            .compiler-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .language-selector {
+                flex-wrap: wrap;
+            }
+
+            .code-editor {
+                height: 300px;
+            }
+        }
+
+        /* AI Review Button Styles */
+        #ai-review-btn {
+            position: fixed;
+            right: 30px;
+            top: 100px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        #ai-review-btn:hover {
+            transform: scale(1.05) translateX(5px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        #ai-review-btn:active {
+            transform: scale(0.95);
+        }
+
+        #ai-review-btn.loading {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        /* AI Review Modal Styles */
+        .ai-review-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .ai-review-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .ai-review-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ai-review-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .ai-review-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.3s ease;
+        }
+
+        .ai-review-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .ai-review-body {
+            padding: 30px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .ai-review-loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .ai-review-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        .ai-review-result {
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .ai-review-result h3 {
+            color: #667eea;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        .ai-review-result p {
+            margin-bottom: 15px;
+        }
+
+        .ai-review-result strong {
+            color: #333;
+        }
+
+        .ai-review-error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
+        }
+
+        /* Code Suggestion Styles */
+        .code-suggestion {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'Fira Mono', 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .code-suggestion code {
+            background: none;
+            padding: 0;
+            border: none;
+            color: inherit;
+        }
+
+        .ai-review-result strong {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        /* Code Suggestion Container Styles */
+        .code-suggestion-container {
+            margin: 1rem 0;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .code-suggestion-header {
+            background: #f8f9fa;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-language {
+            font-weight: 500;
+            color: #667eea;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        .copy-code-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .copy-code-btn:hover {
+            background: #5a67d8;
+        }
+
+        .copy-code-btn.copied {
+            background: #48bb78;
+        }
+
+        /* Dark mode styles */
+        .dark-mode {
+            background: #181818;
+            color: #eee;
+        }
+
+        .dark-mode .navbar {
+            background: rgba(24, 24, 24, 0.95);
+        }
+
+        .dark-mode .compiler-header {
+            color: #eee;
+        }
+
+        .dark-mode .code-section,
+        .dark-mode .output-section {
+            background: rgba(40, 40, 40, 0.95);
+            color: #eee;
+        }
+
+        .dark-mode .section-title {
+            color: #8b9dc3;
+        }
+
+        .dark-mode .lang-btn {
+            border-color: #8b9dc3;
+            color: #8b9dc3;
+        }
+
+        .dark-mode .lang-btn:hover,
+        .dark-mode .lang-btn.active {
+            background: #8b9dc3;
+            color: #181818;
+        }
+
+        .dark-mode .input-label {
+            color: #eee;
+        }
+
+        .dark-mode .input-field {
+            background: #333;
+            border-color: #555;
+            color: #eee;
+        }
+
+        .dark-mode .run-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .dark-mode .run-btn:hover {
+            background: #218838;
+        }
+
+        .dark-mode .output-display {
+            background: #333;
+            color: #eee;
+            border-color: #555;
+        }
+
+        .dark-mode .execution-info {
+            background: #333;
+            color: #eee;
+        }
+
+
+        .dark-mode .ai-review-content {
+            background: #333;
+            color: #eee;
+        }
+
+        .dark-mode .ai-review-header {
+            background: linear-gradient(45deg, #8b9dc3, #6c5ce7);
+        }
+
+        .dark-mode .code-suggestion {
+            background: #2d3748;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+
+        .dark-mode .code-suggestion-header {
+            background: #2d3748;
+            border-bottom-color: #4a5568;
+        }
+
+        /* Language Selection Styles */
+        .language-selection {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .language-selection h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .language-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: center;
+        }
+
+        .lang-btn {
+            padding: 1rem 2rem;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            font-weight: 600;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .lang-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Code Editor Styles */
+        .code-editor-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .code-editor-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-editor-header h3 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .code-editor {
+            height: 500px;
+            border: none;
+            outline: none;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            padding: 2rem;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+
+        /* Action Buttons Styles */
+        .action-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .run-btn,
+        .submit-btn {
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            min-width: 150px;
+        }
+
+        .run-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .run-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Output Display Styles */
+        .output-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .output-header {
+            background: linear-gradient(135deg, #333, #555);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .output-header h3 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .output-content {
+            padding: 2rem;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            background: #f8f9fa;
+            color: #333;
+            min-height: 200px;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+        }
+
+        .output-content.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .output-content.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+
+
+        /* AI Review Modal Styles */
+        .ai-review-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .ai-review-content {
+            background: rgba(255, 255, 255, 0.95);
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .ai-review-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ai-review-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .ai-review-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .ai-review-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .ai-review-body {
+            padding: 2rem;
+            color: #333;
+        }
+
+        .ai-review-loading {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .ai-review-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .ai-review-result {
+            line-height: 1.6;
+        }
+
+        .ai-review-result h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .ai-review-result ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .ai-review-result li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Animated Background -->
+    <div class="background-animation">
+        <div class="gradient-circle"></div>
+        <div class="gradient-circle"></div>
+        <div class="gradient-circle"></div>
+        <div class="gradient-circle"></div>
+    </div>
+
+    <div class="moving-gradient"></div>
+
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo"><a href="{% url 'home' %}" style="color:inherit;text-decoration:none;">FullMoon</a></div>
+            <div class="nav-buttons">
+                <a href="{% url 'problems' %}" class="nav-btn">Problems</a>
+                <a href="{% url 'contests' %}" class="nav-btn">Contests</a>
+                <a href="{% url 'submissions' %}" class="nav-btn">Submissions</a>
+                <a href="{% url 'leaderboard' %}" class="nav-btn">Leaderboard</a>
+                <a href="{% url 'compiler' %}" class="nav-btn">Compiler</a>
+            </div>
+            <div class="auth-buttons">
+                {% if user.is_authenticated %}
+                <div class="user-profile">
+                    <div class="user-info" onclick="toggleDropdown()">
+                        <span class="user-avatar">{{ user.username|slice:":1" }}</span>
+                    </div>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="dropdown-item">
+                            <strong>{{ user.username }}</strong>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{% url 'login' %}" class="auth-btn login-btn">Login</a>
+                <a href="{% url 'register' %}" class="auth-btn signup-btn">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="compiler-header">
+            <h1>Online Compiler</h1>
+            <p>Write, compile, and run code in Python, C++, and Java</p>
+        </div>
+
+        <div class="compiler-grid">
+            <div class="code-section">
+                <h2 class="section-title">Write Your Code</h2>
+
+                <div class="language-selector">
+                    <button class="lang-btn active" data-lang="python">Python</button>
+                    <button class="lang-btn" data-lang="cpp">C++</button>
+                    <button class="lang-btn" data-lang="java">Java</button>
+                </div>
+
+                <div id="editor-monaco" style="width:100%;height:400px;border-radius:6px;border:1px solid #ddd;"></div>
+
+                <div class="input-section">
+                    <label class="input-label">Input (Optional):</label>
+                    <textarea id="input-data" class="input-field" placeholder="Enter your input here..."></textarea>
+                </div>
+
+                <button id="run-btn" class="run-btn">▶ Run Code</button>
+
+                <!-- AI Review Button -->
+                <button id="ai-review-btn" class="ai-review-btn" onclick="openAIReview()"
+                    title="Get AI Review of your code">
+                    AI<br>Review
+                </button>
+
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Compiling and running your code...</p>
+                </div>
+
+                <!-- AI Review Modal -->
+                <div id="ai-review-modal" class="ai-review-modal">
+                    <div class="ai-review-content">
+                        <div class="ai-review-header">
+                            <h2>AI Code Review</h2>
+                            <button class="ai-review-close" onclick="closeAIReview()">&times;</button>
+                        </div>
+                        <div class="ai-review-body" id="ai-review-body">
+                            <div class="ai-review-loading" id="ai-review-loading">
+                                <div class="ai-review-spinner"></div>
+                                <p>Analyzing your code...</p>
+                            </div>
+                            <div class="ai-review-result" id="ai-review-result" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="output-section">
+                <h2 class="section-title">Output</h2>
+                <div id="output-display" class="output-display">Output will appear here...</div>
+                <div id="execution-info" class="execution-info" style="display: none;">
+                    <span>Execution Time: <span id="exec-time">0</span>ms</span>
+                    <span>Status: <span id="exec-status">-</span></span>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script>
+        // Language selection
+        const langBtns = document.querySelectorAll('.lang-btn');
+        const runBtn = document.getElementById('run-btn');
+        const loading = document.getElementById('loading');
+        const outputDisplay = document.getElementById('output-display');
+        const executionInfo = document.getElementById('execution-info');
+        const execTime = document.getElementById('exec-time');
+        const execStatus = document.getElementById('exec-status');
+
+        let currentLanguage = 'python';
+        let monacoEditor = null;
+
+        // Sample code templates with proper boilerplate
+        const codeTemplates = {
+            python: `# Python code
+# Write your code here
+
+print("Hello, World!")
+
+# Example: Get user input
+# name = input("Enter your name: ")
+# print(f"Hello, {name}!")`,
+
+            cpp: `#include <iostream>
+#include <string>
+using namespace std;
+
+int main() {
+    // Write your code here
+    
+    cout << "Hello, World!" << endl;
+    
+    // Example: Get user input
+    // string name;
+    // cout << "Enter your name: ";
+    // getline(cin, name);
+    // cout << "Hello, " << name << "!" << endl;
+    
+    return 0;
+}`,
+
+            java: `import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        // Write your code here
+        
+        System.out.println("Hello, World!");
+        
+        // Example: Get user input
+        // Scanner scanner = new Scanner(System.in);
+        // System.out.print("Enter your name: ");
+        // String name = scanner.nextLine();
+        // System.out.println("Hello, " + name + "!");
+        // scanner.close();
+    }
+}`
+        };
+
+        // Language button click handlers
+        langBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons
+                langBtns.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                btn.classList.add('active');
+
+                // Update current language
+                currentLanguage = btn.dataset.lang;
+
+                // Update code editor with template
+                setEditorCode(codeTemplates[currentLanguage]);
+                setEditorLanguage(currentLanguage);
+            });
+        });
+
+        // Parallax effect for gradient circles
+        window.addEventListener('scroll', function () {
+            const scrolled = window.pageYOffset;
+            const circles = document.querySelectorAll('.gradient-circle');
+
+            circles.forEach((circle, index) => {
+                const speed = (index + 1) * 0.3;
+                circle.style.transform = `translateY(${scrolled * speed}px) rotate(${scrolled * 0.05}deg) scale(${1 + scrolled * 0.0001})`;
+            });
+        });
+
+        // Enhanced parallax effect for floating elements
+        window.addEventListener('scroll', function () {
+            const scrolled = window.pageYOffset;
+            const floatingElements = document.querySelectorAll('.floating-element');
+
+            floatingElements.forEach((element, index) => {
+                const speed = (index + 1) * 0.2;
+                const direction = index % 2 === 0 ? 1 : -1;
+                element.style.transform = `translateY(${scrolled * speed * direction}px) translateX(${scrolled * 0.1 * direction}px) rotate(${scrolled * 0.02 * direction}deg)`;
+            });
+        });
+
+        // AI Review functionality
+        const AI_REVIEW_URL = '/api/ai_review/';
+
+        function openAIReview() {
+            console.log('AI Review function called');
+            const code = getEditorCode();
+            const language = currentLanguage || 'python';
+
+            console.log('Code retrieved:', code);
+            console.log('Language:', language);
+
+            if (!code.trim()) {
+                alert('Please write some code first!');
+                return;
+            }
+
+            // Show modal and loading state
+            const modal = document.getElementById('ai-review-modal');
+            const loading = document.getElementById('ai-review-loading');
+            const result = document.getElementById('ai-review-result');
+            const aiReviewBtn = document.getElementById('ai-review-btn');
+
+            modal.style.display = 'block';
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            aiReviewBtn.classList.add('loading');
+            aiReviewBtn.textContent = 'Analyzing...';
+
+            // Send request to AI review endpoint
+            fetch(AI_REVIEW_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    code: code,
+                    language: language,
+                    problem_id: null // No specific problem for compiler
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    loading.style.display = 'none';
+                    result.style.display = 'block';
+
+                    if (data.success && data.review) {
+                        // Format the review text with proper HTML and code highlighting
+                        let formattedReview = data.review
+                            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                            .replace(/```(\w+)?\n([\s\S]*?)```/g, function (match, lang, code) {
+                                const language = lang || 'text';
+                                const codeContent = code.trim();
+                                return `<div class="code-suggestion-container">
+                                <div class="code-suggestion-header">
+                                    <span class="code-language">${language}</span>
+                                    <button class="copy-code-btn" onclick="copyCodeToClipboard(this)" title="Copy code">
+                                        📋 Copy
+                                    </button>
+                                </div>
+                                <pre class="code-suggestion"><code class="language-${language}">${codeContent}</code></pre>
+                            </div>`;
+                            })
+                            .replace(/\n\n/g, '</p><p>')
+                            .replace(/\n/g, '<br>');
+
+                        result.innerHTML = `
+                        <div class="ai-review-result">
+                            <p>${formattedReview}</p>
+                        </div>
+                    `;
+                    } else {
+                        result.innerHTML = `
+                        <div class="ai-review-error">
+                            <strong>Error:</strong> ${data.error || 'Unable to generate review at this time.'}
+                        </div>
+                    `;
+                    }
+                })
+                .catch(error => {
+                    loading.style.display = 'none';
+                    result.style.display = 'block';
+                    result.innerHTML = `
+                    <div class="ai-review-error">
+                        <strong>Network Error:</strong> ${error.message || 'Failed to connect to AI service.'}
+                    </div>
+                `;
+                })
+                .finally(() => {
+                    // Reset button state
+                    aiReviewBtn.classList.remove('loading');
+                    aiReviewBtn.innerHTML = 'AI<br>Review';
+                });
+        }
+
+        function closeAIReview() {
+            const modal = document.getElementById('ai-review-modal');
+            modal.style.display = 'none';
+        }
+
+        // Add entrance animations to elements
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.lang-btn, .run-btn, #ai-review-btn').forEach(element => {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(20px)';
+            element.style.transition = 'all 0.6s ease';
+            observer.observe(element);
+        });
+
+        // Monaco editor functions
+        function setEditorLanguage(lang) {
+            if (!monacoEditor) return;
+            const monacoLang = lang === 'cpp' ? 'cpp' : lang;
+            monaco.editor.setModelLanguage(monacoEditor.getModel(), monacoLang);
+
+            // Update active state of language buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update current language
+            currentLanguage = lang;
+
+            // Set code template for the selected language
+            const template = codeTemplates[lang];
+            if (template) {
+                setEditorCode(template);
+            }
+        }
+
+        function getEditorCode() {
+            return monacoEditor ? monacoEditor.getValue() : '';
+        }
+
+        function setEditorCode(val) {
+            if (monacoEditor) monacoEditor.setValue(val);
+        }
+
+        // Run code function
+        async function runCode() {
+            const code = getEditorCode().trim();
+            const inputData = document.getElementById('input-data').value;
+
+            if (!code) {
+                outputDisplay.textContent = 'Please write some code first!';
+                outputDisplay.className = 'output-display output-error';
+                return;
+            }
+
+            // Show loading
+            runBtn.disabled = true;
+            loading.style.display = 'block';
+            outputDisplay.textContent = 'Running your code...';
+            outputDisplay.className = 'output-display';
+
+            try {
+                const response = await fetch('{% url "run_code" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        language: currentLanguage,
+                        code: code,
+                        input_data: inputData
+                    })
+                });
+
+                const result = await response.json();
+
+                console.log('Compiler response:', result);
+
+                // Handle both success and error cases
+                if (result.success) {
+                    // Successful execution
+                    if (result.output) {
+                        outputDisplay.textContent = result.output;
+                        outputDisplay.className = 'output-display output-success';
+                    } else {
+                        outputDisplay.textContent = 'Code executed successfully (no output)';
+                        outputDisplay.className = 'output-display output-success';
+                    }
+
+                    // Show execution info
+                    execTime.textContent = result.execution_time;
+                    execStatus.textContent = result.status;
+                    executionInfo.style.display = 'flex';
+                } else {
+                    // Error case - display error message
+                    const errorMessage = result.error || 'An error occurred';
+                    outputDisplay.innerHTML = errorMessage.replace(/\n/g, '<br>');
+                    outputDisplay.className = 'output-display output-error';
+                    executionInfo.style.display = 'none';
+
+                    // Also show execution info for errors if available
+                    if (result.execution_time !== undefined) {
+                        execTime.textContent = result.execution_time;
+                        execStatus.textContent = result.status || 'Error';
+                        executionInfo.style.display = 'flex';
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                outputDisplay.textContent = 'Network error occurred. Please try again.';
+                outputDisplay.className = 'output-display output-error';
+                executionInfo.style.display = 'none';
+            } finally {
+                // Hide loading
+                loading.style.display = 'none';
+                runBtn.disabled = false;
+            }
+        }
+
+        // Initialize Monaco editor
+        (function initMonaco() {
+            const loader = document.createElement('script');
+            loader.src = 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js';
+            loader.onload = () => {
+                window.require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });
+                window.require(['vs/editor/editor.main'], () => {
+                    monacoEditor = monaco.editor.create(document.getElementById('editor-monaco'), {
+                        value: codeTemplates.python,
+                        language: 'python',
+                        theme: 'vs-dark',
+                        automaticLayout: true,
+                        fontSize: 14,
+                        minimap: { enabled: false },
+                        scrollBeyondLastLine: false,
+                        lineNumbers: 'on',
+                        roundedSelection: false,
+                        selectOnLineNumbers: true,
+                        readOnly: false,
+                        cursorStyle: 'line',
+                        automaticLayout: true,
+                        contextmenu: true,
+                        mouseWheelZoom: true,
+                        quickSuggestions: true,
+                        suggestOnTriggerCharacters: true,
+                        acceptSuggestionOnEnter: 'on',
+                        tabCompletion: 'on',
+                        wordWrap: 'on'
+                    });
+                });
+            };
+            document.body.appendChild(loader);
+        })();
+
+        // Attach run button event
+        runBtn.addEventListener('click', runCode);
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function copyCodeToClipboard(button) {
+            const codeBlock = button.closest('.code-suggestion-container').querySelector('code');
+            const textToCopy = codeBlock.textContent;
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                // Change button text temporarily to show success
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.style.background = '#28a745';
+
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                button.textContent = 'Failed';
+                button.style.background = '#dc3545';
+
+                setTimeout(() => {
+                    button.textContent = '📋 Copy';
+                    button.style.background = '';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+
+</html>

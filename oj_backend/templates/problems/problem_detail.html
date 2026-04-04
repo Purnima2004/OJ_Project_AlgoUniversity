@@ -1,0 +1,2199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ problem.title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f5f5f5;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .dark-mode {
+            background: #181818;
+            color: #eee;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            background: #a3a2bb !important;
+            color: #fff !important;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .auth-btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-btn {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .login-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .signup-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .signup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            margin-left: auto;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .user-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .user-avatar {
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .user-avatar:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 0.5rem 0;
+            min-width: 180px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+        }
+
+        .profile-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            color: #333;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #667eea;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: #e9ecef;
+            margin: 0.5rem 0;
+        }
+
+        .container {
+            display: flex;
+            min-height: calc(100vh - 80px);
+            gap: 2rem;
+        }
+
+        .left-panel {
+            flex: 1.2;
+            background: inherit;
+            padding: 2rem 1rem 2rem 2rem;
+            border-right: 1px solid #e5e7eb;
+        }
+
+        .right-panel {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            background: inherit;
+            padding: 2rem 2rem 2rem 1rem;
+        }
+
+        .left-panel>div {
+            transition: all 0.3s ease;
+        }
+
+        .left-panel>div:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .right-panel>div {
+            transition: all 0.3s ease;
+        }
+
+        .right-panel>div:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+
+        .problem-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin: 0;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            letter-spacing: -0.5px;
+        }
+
+        .problem-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .difficulty {
+            font-size: 0.9rem;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .Easy {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+        }
+
+        .Medium {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+        }
+
+        .Hard {
+            background: linear-gradient(135deg, #f87171, #ef4444);
+            color: white;
+        }
+
+        .editor-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 1.5rem;
+            border-radius: 15px 15px 0 0;
+            border-bottom: 2px solid #e2e8f0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .lang-select {
+            font-size: 1rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            border: 2px solid #cbd5e1;
+            background: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .lang-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .run-btn,
+        .submit-btn {
+            padding: 0.7rem 1.8rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .run-btn {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: #fff;
+        }
+
+        .run-btn:hover {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .submit-btn:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .code-editor {
+            width: 100%;
+            height: 50vh;
+            background: #1e1e1e;
+            color: #fff;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            border: none;
+            border-radius: 0 0 15px 15px;
+            padding: 1rem;
+            resize: vertical;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e2e8f0;
+            border-top: none;
+        }
+
+        .dark-mode .code-editor {
+            background: #1a1a1a;
+            color: #e2e8f0;
+            border-color: #374151;
+        }
+
+        .test-cases {
+            margin-top: 2rem;
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e7eb;
+        }
+
+        .test-cases h3 {
+            color: #1f2937;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .test-cases h3::before {
+            content: '🧪';
+            font-size: 1.2rem;
+        }
+
+        .test-case-item {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+        .test-case-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #10b981, #059669);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .test-case-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .test-case-content {
+            background: #1e1e1e;
+            color: #000000;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+            border: 1px solid #374151;
+            margin-top: 0.5rem;
+        }
+
+        .dark-mode .test-cases {
+            background: #1f2937;
+            color: #f3f4f6;
+            border-color: #374151;
+        }
+
+        .dark-mode .test-cases h3 {
+            color: #f3f4f6;
+        }
+
+        .dark-mode .test-case-item {
+            background: #2d3748;
+            border-color: #4a5568;
+        }
+
+        .dark-mode .test-case-label {
+            color: #e2e8f0;
+        }
+
+        .difficulty {
+            font-size: 1em;
+            padding: 0.2em 0.6em;
+            border-radius: 4px;
+            margin-left: 1rem;
+        }
+
+        .Easy {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .Medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .Hard {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .dark-mode .Easy {
+            background: #225522;
+            color: #d4edda;
+        }
+
+        .dark-mode .Medium {
+            background: #665500;
+            color: #fff3cd;
+        }
+
+        .dark-mode .Hard {
+            background: #552222;
+            color: #f8d7da;
+        }
+
+        .description {
+            margin-bottom: 2.5rem;
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #667eea;
+        }
+
+        .description p {
+            line-height: 1.7;
+            color: #374151;
+            font-size: 1.05rem;
+            margin-bottom: 1rem;
+        }
+
+        .examples {
+            margin-bottom: 2.5rem;
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #fbbf24;
+        }
+
+        .examples-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .example-item {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+        .example-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #fbbf24, #f59e0b);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .example-header {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .example-content {
+            background: #1e1e1e;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+            border: 1px solid #374151;
+            line-height: 1.4;
+        }
+
+        .example-input,
+        .example-output,
+        .example-explanation {
+            margin-bottom: 0.8rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid transparent;
+        }
+
+        .example-input {
+            border-left-color: #10b981;
+        }
+
+        .example-output {
+            border-left-color: #3b82f6;
+        }
+
+        .example-explanation {
+            border-left-color: #f59e0b;
+        }
+
+        .example-input strong,
+        .example-output strong,
+        .example-explanation strong {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+
+        .dark-mode .example-content {
+            background: #1a1a1a;
+            border-color: #374151;
+        }
+
+        .dark-mode .example-item {
+            background: #2d3748;
+            border-color: #4a5568;
+        }
+
+        .dark-mode .example-header {
+            color: #f3f4f6;
+        }
+
+        .constraints {
+            margin-bottom: 2.5rem;
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #f87171;
+        }
+
+        .constraints-text {
+            line-height: 1.6;
+            color: #374151;
+            font-size: 1.05rem;
+        }
+
+        .dark-mode .description p,
+        .dark-mode .constraints-text {
+            color: #e2e8f0;
+        }
+
+        .example-block {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border: 1px solid #e5e7eb;
+            position: relative;
+        }
+
+        .example-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .dark-mode .example-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-color: #4a5568;
+        }
+
+        h3 {
+            margin-bottom: 1.5rem;
+            color: #1f2937;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .description h3::before {
+            content: '📝';
+            font-size: 1.2rem;
+        }
+
+        .examples h3::before {
+            content: '💡';
+            font-size: 1.2rem;
+        }
+
+        .constraints h3::before {
+            content: '⚡';
+            font-size: 1.2rem;
+        }
+
+        .dark-mode h3 {
+            color: #f3f4f6;
+        }
+
+        ul {
+            padding-left: 1.5rem;
+        }
+
+        .dark-mode .lang-select {
+            background: #222;
+            color: #eee;
+            border-color: #444;
+        }
+
+        .constraints-text {
+            white-space: pre-line;
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .dark-mode .constraints-text {
+            background: #222;
+            color: #eee;
+        }
+
+        /* Submission Results Styles */
+        .submission-results {
+            margin-top: 1.5rem;
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .dark-mode .submission-results {
+            background: #1f2937;
+            color: #f3f4f6;
+            border-color: #374151;
+        }
+
+        .result-status {
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-AC {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .status-WA {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .status-TLE {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .status-RE {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .status-CE {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .status-MLE {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .status-PE {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #6b7280;
+            background: #f9fafb;
+            border-radius: 15px;
+            margin: 1rem 0;
+        }
+
+        .dark-mode .loading {
+            background: #374151;
+            color: #d1d5db;
+        }
+
+        .spinner {
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .dark-mode .spinner {
+            border-color: #4b5563;
+            border-top-color: #667eea;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading p {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .test-case-result {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            margin: 1rem 0;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            background: white;
+        }
+
+        .dark-mode .test-case-result {
+            background: #1f2937;
+            border-color: #374151;
+        }
+
+        .test-case-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dark-mode .test-case-header {
+            background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+            border-color: #4b5563;
+        }
+
+        .test-case-content {
+            padding: 1.5rem;
+            background: #f9fafb;
+        }
+
+        .dark-mode .test-case-content {
+            background: #2d3748;
+        }
+
+        .test-case-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            color: #991b1b;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 1.5rem;
+            border: 1px solid #fecaca;
+            border-left: 4px solid #ef4444;
+            font-weight: 500;
+        }
+
+        .dark-mode .error-message {
+            background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%);
+            color: #fca5a5;
+            border-color: #dc2626;
+            border-left-color: #ef4444;
+        }
+
+        /* Test Case Tabs Styles */
+        .test-case-tabs {
+            margin-top: 1.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            background: white;
+        }
+
+        .dark-mode .test-case-tabs {
+            border-color: #374151;
+            background: #1f2937;
+        }
+
+        .tabs-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .dark-mode .tabs-header {
+            background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+            border-color: #4b5563;
+        }
+
+        .tab-label {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 1rem;
+        }
+
+        .dark-mode .tab-label {
+            color: #f3f4f6;
+        }
+
+        .tab-label.inactive {
+            color: #6b7280;
+            opacity: 0.7;
+        }
+
+        .dark-mode .tab-label.inactive {
+            color: #9ca3af;
+        }
+
+        .tab-separator {
+            color: #666;
+            font-weight: bold;
+        }
+
+        .dark-mode .tab-separator {
+            color: #888;
+        }
+
+        .tabs-container {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .dark-mode .tabs-container {
+            background: #222;
+            border-color: #444;
+        }
+
+        .test-case-tab {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .test-case-tab {
+            color: #888;
+        }
+
+        .test-case-tab.active {
+            color: #333;
+            border-bottom-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .dark-mode .test-case-tab.active {
+            color: #eee;
+            background: #333;
+            border-bottom-color: #667eea;
+        }
+
+        .test-case-tab.passed {
+            color: #28a745;
+        }
+
+        .dark-mode .test-case-tab.passed {
+            color: #28a745;
+        }
+
+        .test-case-tab.failed {
+            color: #dc3545;
+        }
+
+        .dark-mode .test-case-tab.failed {
+            color: #dc3545;
+        }
+
+        .test-case-content {
+            padding: 1.5rem;
+            background: white;
+        }
+
+        .dark-mode .test-case-content {
+            background: #222;
+        }
+
+        .input-param {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .dark-mode .input-label {
+            color: #eee;
+        }
+
+        .input-value {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 0.75rem;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .dark-mode .input-value {
+            background: #333;
+            border-color: #444;
+            color: #eee;
+        }
+
+        .output-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #ddd;
+        }
+
+        .dark-mode .output-section {
+            border-color: #444;
+        }
+
+        .output-label {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .dark-mode .output-label {
+            color: #eee;
+        }
+
+        .expected-output {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            padding: 0.75rem;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: #155724;
+        }
+
+        .dark-mode .expected-output {
+            background: #225522;
+            border-color: #2d5a2d;
+            color: #d4edda;
+        }
+
+        .actual-output {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            padding: 0.75rem;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: #721c24;
+        }
+
+        .dark-mode .actual-output {
+            background: #552222;
+            border-color: #5a2d2d;
+            color: #f8d7da;
+        }
+
+        .actual-output.correct {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .dark-mode .actual-output.correct {
+            background: #225522;
+            border-color: #2d5a2d;
+            color: #d4edda;
+        }
+
+        /* AI Review Button Styles - Same as Compiler Page */
+        .ai-review-btn {
+            position: fixed;
+            right: 30px;
+            top: 100px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .ai-review-btn:hover {
+            transform: scale(1.05) translateX(5px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .ai-review-btn:active {
+            transform: scale(0.95);
+        }
+
+        .ai-review-btn.loading {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        /* AI Review Modal Styles */
+        .ai-review-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .ai-review-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        .dark-mode .ai-review-content {
+            background-color: #222;
+            color: #eee;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .ai-review-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ai-review-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .ai-review-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.3s ease;
+        }
+
+        .ai-review-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .ai-review-body {
+            padding: 30px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .ai-review-loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .dark-mode .ai-review-loading {
+            color: #888;
+        }
+
+        .ai-review-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        .ai-review-result {
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .ai-review-result h3 {
+            color: #667eea;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        .dark-mode .ai-review-result h3 {
+            color: #8b9dc3;
+            border-bottom-color: #8b9dc3;
+        }
+
+        .ai-review-result p {
+            margin-bottom: 15px;
+        }
+
+        .ai-review-result strong {
+            color: #333;
+        }
+
+        .dark-mode .ai-review-result strong {
+            color: #eee;
+        }
+
+        .ai-review-error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .dark-mode .ai-review-error {
+            background: #552222;
+            color: #f8d7da;
+            border-left-color: #dc3545;
+        }
+
+        /* Code Suggestion Styles */
+        .code-suggestion {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'Fira Mono', 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .dark-mode .code-suggestion {
+            background: #2d3748;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+
+        .code-suggestion code {
+            background: none;
+            padding: 0;
+            border: none;
+            color: inherit;
+        }
+
+        .ai-review-result strong {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .dark-mode .ai-review-result strong {
+            color: #8b9dc3;
+        }
+
+        /* Code Suggestion Container Styles */
+        .code-suggestion-container {
+            margin: 1rem 0;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .dark-mode .code-suggestion-container {
+            border-color: #4a5568;
+        }
+
+        .code-suggestion-header {
+            background: #f8f9fa;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dark-mode .code-suggestion-header {
+            background: #2d3748;
+            border-bottom-color: #4a5568;
+        }
+
+        .code-language {
+            font-weight: 500;
+            color: #667eea;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        .dark-mode .code-language {
+            color: #8b9dc3;
+        }
+
+        .copy-code-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .copy-code-btn:hover {
+            background: #5a67d8;
+        }
+
+        .copy-code-btn.copied {
+            background: #48bb78;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo"><a href="{% url 'home' %}" style="color:inherit;text-decoration:none;">FullMoon</a></div>
+            <div class="nav-buttons">
+                <a href="{% url 'problems' %}" class="nav-btn">Problems</a>
+                <a href="{% url 'contests' %}" class="nav-btn">Contests</a>
+                <a href="{% url 'submissions' %}" class="nav-btn">Submissions</a>
+                <a href="{% url 'leaderboard' %}" class="nav-btn">Leaderboard</a>
+                <a href="{% url 'compiler' %}" class="nav-btn">Compiler</a>
+            </div>
+            <div class="auth-buttons">
+                {% if user.is_authenticated %}
+                <div class="user-profile">
+                    <div class="user-info" onclick="toggleDropdown()">
+                        <span class="user-avatar">{{ user.username|slice:":1" }}</span>
+                    </div>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="dropdown-item">
+                            <strong>{{ user.username }}</strong>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{% url 'login' %}" class="auth-btn login-btn">Login</a>
+                <a href="{% url 'register' %}" class="auth-btn signup-btn">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="top-bar">
+        <div>
+            <h1 class="problem-title">{{ problem.title }}</h1>
+            <div class="problem-meta">
+                <span class="difficulty {{ problem.difficulty }}">{{ problem.difficulty }}</span>
+                <span style="opacity: 0.8; font-size: 0.9rem;">Problem ID: {{ problem.id }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div id="page-meta" data-problem-id="{{ problem.id }}" {% if contest %} data-contest-id="{{ contest.id }}" {% endif %} style="display:none"></div>
+        <div class="left-panel">
+            <div class="description">
+                <h3>Description</h3>
+                <p>{{ problem.description }}</p>
+            </div>
+            <!-- Examples section - always visible with proper formatting -->
+            <div class="examples">
+                <h3>Examples</h3>
+                <div class="examples-container">
+                    <div class="example-item">
+                        <div class="example-header">Example 1</div>
+                        <div class="example-content">
+                            <div class="example-input">
+                                <strong>Input:</strong> nums = [2,7,11,15], target = 9
+                            </div>
+                            <div class="example-output">
+                                <strong>Output:</strong> [0,1]
+                            </div>
+                            <div class="example-explanation">
+                                <strong>Explanation:</strong> Because nums[0] + nums[1] == 9, we return [0, 1].
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="example-item">
+                        <div class="example-header">Example 2</div>
+                        <div class="example-content">
+                            <div class="example-input">
+                                <strong>Input:</strong> nums = [3,2,4], target = 6
+                            </div>
+                            <div class="example-output">
+                                <strong>Output:</strong> [1,2]
+                            </div>
+                            <div class="example-explanation">
+                                <strong>Explanation:</strong> Because nums[1] + nums[2] == 6, we return [1, 2].
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="example-item">
+                        <div class="example-header">Example 3</div>
+                        <div class="example-content">
+                            <div class="example-input">
+                                <strong>Input:</strong> nums = [3,3], target = 6
+                            </div>
+                            <div class="example-output">
+                                <strong>Output:</strong> [0,1]
+                            </div>
+                            <div class="example-explanation">
+                                <strong>Explanation:</strong> Because nums[0] + nums[1] == 6, we return [0, 1].
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if problem.constraints %}
+            <div class="constraints">
+                <h3>Constraints</h3>
+                <div class="constraints-text">
+                    {{ problem.constraints|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="right-panel">
+            <div class="code-editor-section">
+                <div class="editor-header">
+                    <div class="header-content">
+                        <select id="language-select" class="lang-select">
+                            <option value="python">Python</option>
+                            <option value="cpp">C++</option>
+                            <option value="java">Java</option>
+                        </select>
+                        <div class="action-buttons">
+                            <button class="run-btn" onclick="runTestCases()">Run</button>
+                            <button class="submit-btn" onclick="submitSolution()">Submit</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="editor-monaco" style="width:100%;height:50vh;border-radius:6px;"></div>
+
+                <!-- Submission Results Section -->
+                <div id="submission-results" class="submission-results" style="display: none;">
+                    <div id="loading" class="loading">
+                        <div class="spinner"></div>
+                        <p>Running test cases...</p>
+                    </div>
+                    <div id="results-content" style="display: none;">
+                        <div id="result-status" class="result-status"></div>
+                        <div id="result-details"></div>
+
+                        <!-- Test Case Tabs -->
+                        <div id="test-case-tabs" class="test-case-tabs" style="display: none;">
+                            <div class="tabs-header">
+                                <span class="tab-label">Testcase</span>
+                                <span class="tab-separator">></span>
+                                <span class="tab-label inactive">Test Result</span>
+                            </div>
+                            <div class="tabs-container" id="tabs-container">
+                                <!-- Test case tabs will be generated here -->
+                            </div>
+                        </div>
+
+                        <!-- Test Case Content -->
+                        <div id="test-case-content" class="test-case-content" style="display: none;">
+                            <div id="test-case-inputs"></div>
+                            <div id="test-case-outputs"></div>
+                        </div>
+
+                        <div id="error-message" class="error-message" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <!-- AI Review Button -->
+                <button id="ai-review-btn" class="ai-review-btn" title="Get AI Review of your code">
+                    AI<br>Review
+                </button>
+
+                <!-- AI Review Modal -->
+                <div id="ai-review-modal" class="ai-review-modal">
+                    <div class="ai-review-content">
+                        <div class="ai-review-header">
+                            <h2>AI Code Review</h2>
+                            <button class="ai-review-close" onclick="closeAIReview()">&times;</button>
+                        </div>
+                        <div class="ai-review-body" id="ai-review-body">
+                            <div class="ai-review-loading" id="ai-review-loading">
+                                <div class="ai-review-spinner"></div>
+                                <p>Analyzing your code...</p>
+                            </div>
+                            <div class="ai-review-result" id="ai-review-result" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-cases">
+                    <h3>Sample Test Cases</h3>
+                    {% for tc in test_cases %}
+                    <div class="test-case-item">
+                        <div class="test-case-label">Input:</div>
+                        <div class="test-case-content">{{ tc.input_data }}</div>
+                        <div class="test-case-label" style="margin-top: 1rem;">Expected Output:</div>
+                        <div class="test-case-content">{{ tc.expected_output }}</div>
+                    </div>
+                    {% empty %}
+                    <div class="test-case-item">
+                        <p style="text-align: center; color: #6b7280; margin: 0;">No sample test cases available.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        document.addEventListener('click', function (event) {
+            const userProfile = document.querySelector('.user-profile');
+            const dropdown = document.getElementById('profileDropdown');
+            if (userProfile && !userProfile.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                const dropdown = document.getElementById('profileDropdown');
+                dropdown.classList.remove('show');
+            }
+        });
+
+        function runTestCases() {
+            console.log('runTestCases function called');
+            const code = getEditorCode();
+            const language = document.getElementById('language-select').value;
+
+            console.log('Code:', code);
+            console.log('Language:', language);
+
+            if (!code.trim()) {
+                alert('Please write some code first!');
+                return;
+            }
+
+            // Show loading spinner
+            const resultsSection = document.getElementById('submission-results');
+            const loading = document.getElementById('loading');
+            const resultsContent = document.getElementById('results-content');
+            const testCaseTabs = document.getElementById('test-case-tabs');
+            const testCaseContent = document.getElementById('test-case-content');
+
+            console.log('Showing results section');
+            resultsSection.style.display = 'block';
+            loading.style.display = 'block';
+            resultsContent.style.display = 'none';
+            testCaseTabs.style.display = 'none';
+            testCaseContent.style.display = 'none';
+
+            // Send AJAX request for run mode
+            const url = `/problem/{{ problem.id }}/submit/`;
+            console.log('Sending request to:', url);
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    code: code,
+                    language: language,
+                    mode: 'run'
+                })
+            })
+                .then(response => {
+                    console.log('Response received:', response);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Data received:', data);
+                    loading.style.display = 'none';
+                    resultsContent.style.display = 'block';
+                    if (data.success) {
+                        window.currentTestCases = data.test_cases || [];
+                        displayResults(data);
+                    } else {
+                        displayError(data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loading.style.display = 'none';
+                    resultsContent.style.display = 'block';
+                    displayError('Network error: ' + error);
+                });
+        }
+
+        function showTestCaseInterface() {
+            const resultsSection = document.getElementById('submission-results');
+            const testCaseTabs = document.getElementById('test-case-tabs');
+            const testCaseContent = document.getElementById('test-case-content');
+
+            // Show test case interface
+            resultsSection.style.display = 'block';
+            testCaseTabs.style.display = 'block';
+            testCaseContent.style.display = 'block';
+
+            // Hide loading and results content
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('results-content').style.display = 'none';
+
+            // Generate test case tabs for sample test cases
+            const sampleTestCases = [
+                { input_data: '4\n2 7 11 15\n9', expected_output: '0 1' },
+                { input_data: '3\n3 2 4\n6', expected_output: '1 2' },
+                { input_data: '2\n3 3\n6', expected_output: '0 1' }
+            ];
+
+            displayTestCases(sampleTestCases);
+        }
+
+        function submitSolution() {
+            const code = getEditorCode();
+            const language = document.getElementById('language-select').value;
+            const submitBtn = document.getElementById('submit-btn');
+
+            if (!code.trim()) {
+                alert('Please write some code first!');
+                return;
+            }
+
+            // Disable submit button and show loading
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            // Show submission results section with full LeetCode-style interface
+            const resultsSection = document.getElementById('submission-results');
+            const loading = document.getElementById('loading');
+            const resultsContent = document.getElementById('results-content');
+            const testCaseTabs = document.getElementById('test-case-tabs');
+            const testCaseContent = document.getElementById('test-case-content');
+
+            resultsSection.style.display = 'block';
+            loading.style.display = 'block';
+            resultsContent.style.display = 'none';
+            testCaseTabs.style.display = 'none';
+            testCaseContent.style.display = 'none';
+
+            const requestBody = {
+                code: code,
+                language: language,
+                mode: 'submit'
+            };
+
+            if (typeof contestId === 'number') {
+                requestBody.contest_id = contestId;
+            }
+
+            fetch(`/problem/{{ problem.id }}/submit/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(requestBody)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    loading.style.display = 'none';
+                    resultsContent.style.display = 'block';
+
+                    if (data.success) {
+                        // Store test cases globally for tab switching
+                        window.currentTestCases = data.test_cases || [];
+                        displayResults(data);
+
+                        // Clear saved code only if submission is successful
+                        if (data.status === 'AC') {
+                            clearSavedCode();
+                        }
+                    } else {
+                        displayError(data.error);
+                    }
+                })
+                .catch(error => {
+                    loading.style.display = 'none';
+                    resultsContent.style.display = 'block';
+                    displayError('Network error: ' + error);
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit';
+                });
+        }
+
+        function displayResults(data) {
+            const resultStatus = document.getElementById('result-status');
+            const resultDetails = document.getElementById('result-details');
+            const testCaseTabs = document.getElementById('test-case-tabs');
+            const testCaseContent = document.getElementById('test-case-content');
+            const errorMessage = document.getElementById('error-message');
+
+            // Clear previous results
+            errorMessage.style.display = 'none';
+
+            // Set status
+            resultStatus.className = `result-status status-${data.status}`;
+            resultStatus.textContent = getStatusText(data.status);
+
+            // Set details
+            resultDetails.innerHTML = `
+                <p><strong>Test Cases Passed:</strong> ${data.test_cases_passed}/${data.total_test_cases}</p>
+                <p><strong>Execution Time:</strong> ${data.execution_time}ms</p>
+            `;
+
+            // Show error if any
+            if (data.error_message) {
+                errorMessage.style.display = 'block';
+                errorMessage.innerHTML = data.error_message.replace(/\n/g, '<br>');
+            }
+
+            // Show test case tabs and content with full LeetCode-style interface
+            if (data.test_cases && data.test_cases.length > 0) {
+                testCaseTabs.style.display = 'block';
+                testCaseContent.style.display = 'block';
+                displayTestCases(data.test_cases);
+            }
+        }
+
+        function displayTestCases(testCases) {
+            const tabsContainer = document.getElementById('tabs-container');
+            const testCaseTabs = document.getElementById('test-case-tabs');
+            const testCaseContent = document.getElementById('test-case-content');
+
+            // Generate tabs
+            let tabsHTML = '';
+            testCases.forEach((testCase, index) => {
+                // For run mode, no status class initially
+                const statusClass = testCase.status ? (testCase.status === 'AC' ? 'passed' : 'failed') : '';
+                const activeClass = index === 0 ? 'active' : '';
+                tabsHTML += `
+                    <button class="test-case-tab ${statusClass} ${activeClass}" 
+                            onclick="showTestCase(${index})">
+                        Case ${index + 1}
+                    </button>
+                `;
+            });
+
+            tabsContainer.innerHTML = tabsHTML;
+            testCaseTabs.style.display = 'block';
+            testCaseContent.style.display = 'block';
+
+            // Show first test case by default
+            if (testCases.length > 0) {
+                showTestCase(0);
+            }
+        }
+
+        function showTestCase(index) {
+            // Update active tab
+            const tabs = document.querySelectorAll('.test-case-tab');
+            tabs.forEach((tab, i) => {
+                if (i === index) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+
+            // Show test case content
+            const testCase = window.currentTestCases[index];
+            if (testCase) {
+                displayTestCaseContent(testCase);
+            }
+        }
+
+        function displayTestCaseContent(testCase) {
+            const inputsDiv = document.getElementById('test-case-inputs');
+            const outputsDiv = document.getElementById('test-case-outputs');
+
+            // Parse input data for Two Sum problem
+            let inputsHTML = '';
+            if (testCase.input_data) {
+                const lines = testCase.input_data.split('\n');
+                if (lines.length >= 3) {
+                    const n = lines[0];
+                    const nums = lines[1];
+                    const target = lines[2];
+
+                    inputsHTML = `
+                        <div class="input-param">
+                            <label class="input-label">nums =</label>
+                            <div class="input-value">[${nums.split(' ').join(', ')}]</div>
+                        </div>
+                        <div class="input-param">
+                            <label class="input-label">target =</label>
+                            <div class="input-value">${target}</div>
+                        </div>
+                    `;
+                } else {
+                    inputsHTML = `
+                        <div class="input-param">
+                            <label class="input-label">Input:</label>
+                            <div class="input-value">${testCase.input_data}</div>
+                        </div>
+                    `;
+                }
+            }
+
+            // Parse output - handle both run mode and submit mode
+            let outputsHTML = '';
+            if (testCase.actual_output !== undefined) {
+                // Submit mode - show actual vs expected
+                const isCorrect = testCase.status === 'AC';
+                const outputClass = isCorrect ? 'correct' : '';
+
+                outputsHTML = `
+                    <div class="output-section">
+                        <div class="output-label">Expected Output:</div>
+                        <div class="expected-output">${testCase.expected_output}</div>
+                        <div class="output-label" style="margin-top: 1rem;">Your Output:</div>
+                        <div class="actual-output ${outputClass}">${testCase.actual_output || 'No output'}</div>
+                    </div>
+                `;
+            } else {
+                // Run mode - show only expected output
+                outputsHTML = `
+                    <div class="output-section">
+                        <div class="output-label">Expected Output:</div>
+                        <div class="expected-output">${testCase.expected_output}</div>
+                    </div>
+                `;
+            }
+
+            inputsDiv.innerHTML = inputsHTML;
+            outputsDiv.innerHTML = outputsHTML;
+        }
+
+        function displayError(error) {
+            const resultStatus = document.getElementById('result-status');
+            const errorMessage = document.getElementById('error-message');
+
+            resultStatus.className = 'result-status status-RE';
+            resultStatus.textContent = 'Runtime Error';
+
+            errorMessage.style.display = 'block';
+            errorMessage.innerHTML = error.replace(/\n/g, '<br>');
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'AC': 'Accepted',
+                'WA': 'Wrong Answer',
+                'TLE': 'Time Limit Exceeded',
+                'RE': 'Runtime Error',
+                'CE': 'Compilation Error',
+                'MLE': 'Memory Limit Exceeded',
+                'PE': 'Presentation Error'
+            };
+            return statusMap[status] || status;
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Get problem/contest ids from data attributes
+        const metaEl = document.getElementById('page-meta');
+        const problemId = parseInt(metaEl.dataset.problemId, 10);
+        const contestId = metaEl.dataset.contestId ? parseInt(metaEl.dataset.contestId, 10) : null;
+
+        // Save code to localStorage when user types
+        function persistCode() {
+            localStorage.setItem(`code_editor_content_${problemId}`, getEditorCode());
+        }
+
+        // Restore code from localStorage when page loads
+        // initial content handled during Monaco initialization
+
+        // Clear saved code when user clicks "Submit" and gets AC
+        function clearSavedCode() {
+            localStorage.removeItem(`code_editor_content_${problemId}`);
+        }
+
+        // Code templates for different languages
+        const codeTemplates = {
+            python: `# Python code
+# Write your code here
+
+def solve():
+    # Your solution goes here
+    pass
+
+# Example usage
+if __name__ == "__main__":
+    solve()`,
+
+            cpp: `#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+// Write your code here
+
+int main() {
+    // Your solution goes here
+    
+    return 0;
+}`,
+
+            java: `import java.util.*;
+
+public class Main {
+    // Write your code here
+    
+    public static void main(String[] args) {
+        // Your solution goes here
+        
+    }
+}`
+        };
+
+        // Language switching functionality
+        const languageSelect = document.getElementById('language-select');
+        languageSelect.addEventListener('change', function () {
+            const selectedLanguage = this.value;
+            setEditorLanguage(selectedLanguage);
+            setEditorCode(codeTemplates[selectedLanguage]);
+            persistCode();
+        });
+
+        // AI Review Functionality
+        const AI_REVIEW_URL = '/api/ai_review/';
+
+        function openAIReview() {
+            console.log('openAIReview function called');
+            const code = getEditorCode();
+            const language = document.getElementById('language-select').value;
+
+            console.log('Code:', code);
+            console.log('Language:', language);
+
+            if (!code.trim()) {
+                alert('Please write some code first!');
+                return;
+            }
+
+            // Show modal and loading state
+            const modal = document.getElementById('ai-review-modal');
+            const loading = document.getElementById('ai-review-loading');
+            const result = document.getElementById('ai-review-result');
+            const aiReviewBtn = document.getElementById('ai-review-btn');
+
+            modal.style.display = 'block';
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            aiReviewBtn.classList.add('loading');
+            aiReviewBtn.textContent = 'Analyzing...';
+
+            // Send request to AI review endpoint
+            fetch(AI_REVIEW_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    code: code,
+                    language: language,
+                    problem_id: parseInt('{{ problem.id }}', 10)
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    loading.style.display = 'none';
+                    result.style.display = 'block';
+
+                    if (data.success && data.review) {
+                        // Format the review text with proper HTML and code highlighting
+                        let formattedReview = data.review
+                            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                            .replace(/```(\w+)?\n([\s\S]*?)```/g, function (match, lang, code) {
+                                const language = lang || 'text';
+                                const codeContent = code.trim();
+                                return `<div class="code-suggestion-container">
+                                <div class="code-suggestion-header">
+                                    <span class="code-language">${language}</span>
+                                    <button class="copy-code-btn" onclick="copyCodeToClipboard(this)" title="Copy code">
+                                        📋 Copy
+                                    </button>
+                                </div>
+                                <pre class="code-suggestion"><code class="language-${language}">${codeContent}</code></pre>
+                            </div>`;
+                            })
+                            .replace(/\n\n/g, '</p><p>')
+                            .replace(/\n/g, '<br>');
+
+                        result.innerHTML = `
+                        <div class="ai-review-result">
+                            <p>${formattedReview}</p>
+                        </div>
+                    `;
+                    } else {
+                        result.innerHTML = `
+                        <div class="ai-review-error">
+                            <strong>Error:</strong> ${data.error || 'Unable to generate review at this time.'}
+                        </div>
+                    `;
+                    }
+                })
+                .catch(error => {
+                    loading.style.display = 'none';
+                    result.style.display = 'block';
+                    result.innerHTML = `
+                    <div class="ai-review-error">
+                        <strong>Network Error:</strong> ${error.message || 'Failed to connect to AI service.'}
+                    </div>
+                `;
+                })
+                .finally(() => {
+                    // Reset button state
+                    aiReviewBtn.classList.remove('loading');
+                    aiReviewBtn.innerHTML = 'AI<br>Review';
+                });
+        }
+
+        function closeAIReview() {
+            const modal = document.getElementById('ai-review-modal');
+            modal.style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function (event) {
+            const modal = document.getElementById('ai-review-modal');
+            if (event.target === modal) {
+                closeAIReview();
+            }
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeAIReview();
+            }
+        });
+
+        // Initialize AI Review button
+        if (document.getElementById('ai-review-btn')) {
+            document.getElementById('ai-review-btn').onclick = openAIReview;
+        }
+
+        // Function to copy code to clipboard
+        function copyCodeToClipboard(button) {
+            const codeBlock = button.closest('.code-suggestion-container').querySelector('code');
+            const codeText = codeBlock.textContent;
+
+            navigator.clipboard.writeText(codeText).then(function () {
+                // Visual feedback
+                const originalText = button.textContent;
+                button.textContent = ' Copied!';
+                button.classList.add('copied');
+
+                setTimeout(function () {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(function (err) {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy code to clipboard');
+            });
+        }
+        // ======================
+        // Monaco-only Integration
+        // ======================
+        let monacoEditor = null;
+        function setEditorLanguage(lang) {
+            if (!monacoEditor) return;
+            const monacoLang = lang === 'cpp' ? 'cpp' : lang;
+            monaco.editor.setModelLanguage(monacoEditor.getModel(), monacoLang);
+        }
+        function getEditorCode() {
+            return monacoEditor ? monacoEditor.getValue() : '';
+        }
+        function setEditorCode(val) {
+            if (monacoEditor) monacoEditor.setValue(val);
+        }
+        (function initMonaco() {
+            const loader = document.createElement('script');
+            loader.src = 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js';
+            loader.onload = () => {
+                window.require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });
+                window.require(['vs/editor/editor.main'], () => {
+                    const savedCode = localStorage.getItem(`code_editor_content_${problemId}`);
+                    const initial = savedCode || codeTemplates.python;
+                    monacoEditor = monaco.editor.create(document.getElementById('editor-monaco'), {
+                        value: initial,
+                        language: languageSelect.value === 'cpp' ? 'cpp' : languageSelect.value,
+                        theme: 'vs-dark',
+                        automaticLayout: true,
+                        fontSize: 14,
+                    });
+                    monacoEditor.onDidChangeModelContent(persistCode);
+                });
+            };
+            document.body.appendChild(loader);
+        })();
+    </script>
+</body>
+
+</html>

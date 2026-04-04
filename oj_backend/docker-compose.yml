@@ -2,21 +2,52 @@ version: '3.8'
 
 services:
   web:
-    build: .
-    ports:
-      - "8000:8000"
+    image: python:3.9-slim
+    expose:
+      - "8000"
     volumes:
       - .:/app
       - static_volume:/app/static
       - media_volume:/app/media
       - sqlite_volume:/app/db
+    working_dir: /app
     environment:
       - DEBUG=True
       - DJANGO_SETTINGS_MODULE=oj_backend.settings
-    command: python manage.py runserver 0.0.0.0:8000
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - ALLOWED_HOSTS=13.234.242.181,fullmoon.icu,www.fullmoon.icu,localhost,127.0.0.1,*
+      - CSRF_TRUSTED_ORIGINS=https://fullmoon.icu,https://www.fullmoon.icu,http://13.234.242.181,http://fullmoon.icu,http://www.fullmoon.icu,http://localhost:8000,http://127.0.0.1:8000
+      - SECURE_PROXY_SSL_HEADER=HTTP_X_FORWARDED_PROTO,https
+      - USE_X_FORWARDED_HOST=True
+    command: >
+      bash -c "pip install -r requirements.txt &&
+               python manage.py migrate &&
+               python manage.py runserver 0.0.0.0:8000"
     restart: unless-stopped
+    networks:
+      - app_network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - static_volume:/app/static:ro
+      - media_volume:/app/media:ro
+    depends_on:
+      - web
+    restart: unless-stopped
+    networks:
+      - app_network
 
 volumes:
   static_volume:
   media_volume:
   sqlite_volume:
+
+networks:
+  app_network:
+    driver: bridge
