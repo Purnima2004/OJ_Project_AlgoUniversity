@@ -1,7 +1,7 @@
 # fly.toml — Fly.io app configuration
 # See https://fly.io/docs/reference/configuration/ for details
 
-app = 'oj-fullmoon'
+app = 'oj-fullmoon-purnima'
 primary_region = 'sin'  # Singapore (closest to India)
 
 [build]
