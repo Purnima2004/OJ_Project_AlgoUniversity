@@ -1,4 +1,4 @@
-# 🚀 Online Judge (OJ) - Competitive Programming Platform
+#  Online Judge (OJ) - Competitive Programming Platform
 
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://python.org)
 [![Django](https://img.shields.io/badge/Django-5.2+-green.svg)](https://djangoproject.com)
@@ -6,13 +6,12 @@
 [![AWS](https://img.shields.io/badge/AWS-EC2-orange.svg)](https://aws.amazon.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> **Live Demo:** [🌐 fullmoon.icu](https://fullmoon.icu) | **Status:** 🟢 Production Ready
 
 A robust and scalable Online Judge web application built during a Software Development Externship. This platform enables users to solve competitive programming problems, participate in contests, and get AI-powered code feedback - all in a secure, sandboxed environment.
 
-## ✨ Features
+## Features
 
-### 🎯 Core Functionality
+### Core Functionality
 - **Multi-Language Support**: Python, C++, Java with real-time compilation
 - **Problem Management**: Create, edit, and manage programming problems with test cases
 - **Contest System**: Real-time contests with timers and leaderboards
@@ -20,21 +19,21 @@ A robust and scalable Online Judge web application built during a Software Devel
 - **AI Code Review**: Google Gemini AI integration for intelligent code analysis
 - **Online Compiler**: Standalone compiler for testing code independently
 
-### 🏆 Contest Features
+### Contest Features
 - **Real-time Timer**: Countdown timers with visual warnings
 - **Separate Contest Problems**: Unique problem sets for each contest
 - **Leaderboard System**: Real-time ranking updates
 - **Contest Management**: Admin tools for creating and managing contests
 - **Anti-Cheating**: No AI review during contests for fair competition
 
-### 🔐 Security & Performance
+### Security & Performance
 - **Docker Sandboxing**: Isolated code execution environment
 - **User Authentication**: Secure login/registration system
 - **Rate Limiting**: Protection against abuse
 - **SSL/HTTPS**: Secure communication
 - **Load Balancing**: Nginx reverse proxy for scalability
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Backend
 - **Framework**: Django 5.2+
@@ -59,7 +58,7 @@ A robust and scalable Online Judge web application built during a Software Devel
 - **Features**: Code quality assessment, algorithm analysis, optimization suggestions
 - **API**: Secure integration with environment variable configuration
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Python 3.11+
@@ -116,7 +115,7 @@ A robust and scalable Online Judge web application built during a Software Devel
    python manage.py runserver
    ```
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 oj_backend/
@@ -138,42 +137,7 @@ oj_backend/
 └── requirements.txt        # Python dependencies
 ```
 
-## 🌐 Deployment
-
-### AWS EC2 Deployment
-
-1. **Launch EC2 instance**
-   ```bash
-   # Use the provided deployment scripts
-   ./deploy-aws.sh
-   ```
-
-2. **Configure environment**
-   ```bash
-   # Set production environment variables
-   export IS_PRODUCTION=true
-   export GEMINI_API_KEY=your_key
-   ```
-
-3. **Deploy with Docker**
-   ```bash
-   docker-compose -f docker-compose.yml up -d
-   ```
-
-### Environment Variables
-
-```bash
-# Required
-GEMINI_API_KEY=your_google_api_key
-SECRET_KEY=your_django_secret_key
-
-# Optional
-DEBUG=False
-IS_PRODUCTION=true
-ALLOWED_HOSTS=your_domain.com
-```
-
-## 📊 Performance Metrics
+## Performance Metrics
 
 - **Code Submission Latency**: < 5 seconds average
 - **Supported Languages**: 3 (Python, C++, Java)
@@ -181,7 +145,7 @@ ALLOWED_HOSTS=your_domain.com
 - **Test Case Coverage**: Comprehensive evaluation system
 - **Uptime**: Production-grade reliability
 
-## 🔧 Configuration
+## Configuration
 
 ### AI Review Setup
 
@@ -203,7 +167,7 @@ ALLOWED_HOSTS=your_domain.com
 - Difficulty level classification
 - Sample input/output examples
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -211,17 +175,17 @@ ALLOWED_HOSTS=your_domain.com
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **Mentorship**: Senior engineers from Google London, Apple, and Alphagrep Singapore
 - **Technologies**: Django, Docker, AWS, Google Gemini AI
 - **Community**: Open source contributors and competitive programming community
 
-## 📞 Contact
+## Contact
 
 - **Project Link**: [https://github.com/yourusername/oj-project](https://github.com/Purnima2004/OJ_Project_AlgoUniversity)
 - **Live Demo**: [https://fullmoon.icu](https://fullmoon.icu)
@@ -229,7 +193,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-⭐ **Star this repository if you find it helpful!**
+**Star this repository if you find it helpful!**
 
 ---
 
