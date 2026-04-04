@@ -29,5 +29,5 @@ RUN mkdir -p media static
 # Expose port
 EXPOSE 8000
 
-# Default command (can be overridden in docker-compose)
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Default command: run migrations, collect static files, then start gunicorn
+CMD bash -c "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn oj_backend.wsgi:application --bind 0.0.0.0:8000"
